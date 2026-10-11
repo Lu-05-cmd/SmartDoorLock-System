@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="shell-type" content="mobile_stack">
+    <script src="js/i18n.js?v=language-6"></script>
+    <title>Sign In | Face Door Control</title>
+    <script>
+      try {
+        if (localStorage.getItem('face-door-theme') !== 'light') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (error) {}
+    </script>
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        background-color: #e9ebf9;
+        color: #0b1c30;
+      }
+
+      html.dark,
+      html.dark body {
+        background-color: #101721;
+        color: #e7edf6;
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 140ms;
+        animation-timing-function: ease-out;
+      }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;500;600&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link href="css/styles.css?v=light-bg-e9ebf9" rel="stylesheet">
+    <style>
+      .login-page {
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+
+      .login-page .login-header {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+
+      .login-page .login-main {
+        width: min(100%, 480px);
+        margin: 0 auto;
+        padding: calc(68px + env(safe-area-inset-top, 0px)) 24px 28px;
+      }
+
+      .login-page .login-field {
+        flex: 1;
+        min-width: 0;
+        width: 100%;
+        height: 48px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        outline: none;
+        color: #0b1c30;
+        background: transparent;
+      }
+
+      .login-page .login-input-row {
+        min-height: 52px;
+        border: 1px solid transparent;
+        transition: border-color 140ms ease, box-shadow 140ms ease;
+      }
+
+      .login-page .login-input-row:focus-within {
+        border-color: #667085;
+        box-shadow: 0 0 0 3px rgb(102 112 133 / 14%);
+      }
+
+      .login-page .login-input-row.has-error {
+        border-color: #b42318;
+        box-shadow: 0 0 0 2px rgb(180 35 24 / 12%);
+      }
+
+      .login-page .login-secure-badge {
+        gap: 8px;
+        padding: 6px 14px;
+        border: 1px solid #c5d7f3;
+        color: #243b5a;
+        background: #eaf1fc;
+      }
+
+      .login-page .login-secure-badge .login-secure-dot {
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        background: #2459a6;
+      }
+
+      .login-page .login-secure-badge-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        line-height: 1.35;
+      }
+
+      .login-page .login-demo-account {
+        margin: -12px 0 20px;
+        padding: 12px 14px;
+        border: 1px solid #c9d8f2;
+        border-radius: 14px;
+        color: #243b5a;
+        background: #edf4ff;
+      }
+
+      .login-page .login-demo-account code {
+        color: #0b1c30;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        overflow-wrap: anywhere;
+      }
+
+      .login-page .login-demo-fill {
+        flex: 0 0 auto;
+        min-height: 34px;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 8px;
+        color: #fff;
+        background: #2459a6;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .login-page .login-submit {
+        min-height: 48px;
+        border: 0;
+        cursor: pointer;
+      }
+
+      .login-page .login-submit:disabled {
+        cursor: wait;
+        opacity: .75;
+      }
+
+      .login-page .login-notice[hidden] {
+        display: none;
+      }
+
+      .login-page .login-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        margin-top: 2px;
+        padding: 11px 12px;
+        border: 1px solid #c9d8f2;
+        border-radius: 12px;
+        color: #243b5a;
+        background: #edf4ff;
+        font-size: 13px;
+        line-height: 1.45;
+        text-align: left;
+      }
+
+      .login-page .login-notice-icon {
+        flex: 0 0 auto;
+        font-size: 18px;
+        line-height: 1.3;
+      }
+
+      .login-page .login-notice[data-state="error"] {
+        border-color: #f1b8b2;
+        color: #8f2018;
+        background: #fff0ee;
+      }
+
+      .login-page .login-notice[data-state="success"] {
+        border-color: #a8d7b5;
+        color: #176b36;
+        background: #edfff2;
+      }
+
+      html.dark .login-page .login-field {
+        color: #e7edf6;
+      }
+
+      html.dark .login-page .login-field::placeholder {
+        color: #8797ab;
+      }
+
+      html.dark .login-page .login-input-row:focus-within {
+        border-color: #7899cc;
+        box-shadow: 0 0 0 3px rgb(120 153 204 / 20%);
+      }
+
+      html.dark .login-page .login-input-row.has-error {
+        border-color: #ff8c82;
+        box-shadow: 0 0 0 2px rgb(255 140 130 / 16%);
+      }
+
+      html.dark .login-page .login-secure-badge {
+        border-color: #476184;
+        color: #e5eeff;
+        background: #263b59;
+      }
+
+      html.dark .login-page .login-secure-badge .login-secure-dot {
+        background: #9fc0ff;
+      }
+
+      html.dark .login-page .login-demo-account {
+        border-color: #385276;
+        color: #d8e6ff;
+        background: #1b2a40;
+      }
+
+      html.dark .login-page .login-demo-account code {
+        color: #f1f5ff;
+      }
+
+      html.dark .login-page .login-demo-fill {
+        color: #101721;
+        background: #a9c5ff;
+      }
+
+      html.dark .login-page .login-notice {
+        border-color: #385276;
+        color: #d8e6ff;
+        background: #1b2a40;
+      }
+
+      html.dark .login-page .login-notice[data-state="error"] {
+        border-color: #713d45;
+        color: #ffd8d3;
+        background: #38232a;
+      }
+
+      html.dark .login-page .login-notice[data-state="success"] {
+        border-color: #2e6845;
+        color: #c4f3d0;
+        background: #183126;
+      }
+
+      @media (max-width: 360px) {
+        .login-page .login-main {
+          padding-right: 16px;
+          padding-left: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body class="login-page bg-surface font-body-md text-body-md text-on-surface">
+    <header class="login-header fixed top-0 inset-x-0 z-10 bg-surface/85 backdrop-blur-xl shadow-sm">
+      <div class="relative mx-auto flex h-14 max-w-[480px] items-center justify-center px-4">
+        <div class="flex flex-col items-center">
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px] text-primary">lock</span>
+            <span class="font-label-caps text-label-caps font-semibold uppercase tracking-wider text-secondary">Perimeter Online</span>
+          </div>
+          <span class="font-headline-sm text-headline-sm">Sign In</span>
+        </div>
+        <div aria-hidden="true" class="absolute right-4 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-on-primary">
+          <span class="material-symbols-outlined text-[18px]">person</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="login-main flex min-h-screen flex-col justify-center">
+      <section class="flex flex-col items-center pb-6 pt-3 text-center">
+        <div class="login-secure-badge mb-5 inline-flex items-center rounded-full shadow-sm">
+          <span class="login-secure-dot animate-pulse rounded-full"></span>
+          <span class="login-secure-badge-label font-label-caps uppercase">Perimeter Secure</span>
+        </div>
+        <div class="relative mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-surface-container-lowest shadow-md">
+          <div class="absolute inset-1 flex items-center justify-center rounded-xl bg-surface-container-low">
+            <span class="material-symbols-outlined text-[28px] text-primary" style="font-variation-settings: 'FILL' 1;">lock</span>
+          </div>
+          <span class="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-surface-container-lowest shadow-sm">
+            <span class="h-2 w-2 rounded-full bg-primary"></span>
+          </span>
+        </div>
+        <h1 class="mb-1.5 font-headline-lg text-headline-lg tracking-tight">Welcome Back</h1>
+        <p class="max-w-xs text-on-surface-variant">Sign in to manage your perimeter and smart door locks.</p>
+      </section>
+
+      <section aria-label="Demo account" class="login-demo-account flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="mb-1 font-label-md text-label-md font-semibold">Demo account</p>
+          <p class="m-0 text-xs leading-5">Email: <code id="demo-account-email">admin@smartperimeter.io</code></p>
+          <p class="m-0 text-xs leading-5">Password: <code id="demo-account-password">DoorLock@2026!</code></p>
+        </div>
+        <button class="login-demo-fill" id="use-demo-account" type="button">Fill</button>
+      </section>
+
+      <form class="flex flex-col gap-4" id="login-form" novalidate>
+        <div class="flex flex-col gap-1.5">
+          <label class="flex items-center justify-between font-label-md text-label-md font-medium text-on-surface-variant" for="login-email">
+            <span>Email or Vault ID</span>
+            <span class="font-label-caps text-label-caps uppercase tracking-wider text-secondary">Required</span>
+          </label>
+          <div class="login-input-row flex items-center gap-3 rounded-xl bg-surface-container-lowest px-3.5 shadow-sm">
+            <span class="material-symbols-outlined text-[20px] text-secondary">alternate_email</span>
+            <input class="login-field" id="login-email" autocomplete="username" enterkeyhint="next" inputmode="email" placeholder="name@example.com" required type="email">
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="flex items-center justify-between font-label-md text-label-md font-medium text-on-surface-variant" for="login-password">
+            <span>Master Password</span>
+            <span class="font-label-caps text-label-caps uppercase tracking-wider text-secondary">Required</span>
+          </label>
+          <div class="login-input-row relative flex items-center gap-3 rounded-xl bg-surface-container-lowest px-3.5 shadow-sm">
+            <span class="material-symbols-outlined text-[20px] text-secondary">password</span>
+            <input class="login-field tracking-widest" id="login-password" autocomplete="current-password" enterkeyhint="done" placeholder="Enter your password" required type="password" style="padding-right: 44px">
+            <button aria-label="Show password" class="absolute right-2 flex h-9 w-9 items-center justify-center rounded-lg text-secondary" id="toggle-password" type="button">
+              <span class="material-symbols-outlined text-[20px]" id="password-icon">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex cursor-pointer items-center gap-2 font-body-sm text-body-sm font-medium">
+            <input checked class="h-4 w-4 accent-current" id="remember-device" type="checkbox">
+            <span>Remember device</span>
+          </label>
+          <a class="font-body-sm text-body-sm font-semibold text-on-surface-variant underline underline-offset-4" href="#forgot-password" id="forgot-password">Forgot Password?</a>
+        </div>
+
+        <button class="login-submit mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-primary font-label-lg text-label-lg font-medium text-on-primary shadow-md transition-all hover:bg-inverse-surface active:scale-[0.985]" id="login-submit" type="submit">
+          <span>Log In</span>
+          <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </button>
+        <div aria-live="polite" class="login-notice" hidden id="login-notice" role="status">
+          <span aria-hidden="true" class="material-symbols-outlined login-notice-icon"></span>
+          <span id="login-notice-text"></span>
+        </div>
+      </form>
+
+      <div class="relative my-5 flex items-center justify-center">
+        <div class="h-px w-full bg-surface-container-highest"></div>
+        <span class="absolute bg-surface px-3 font-label-caps text-label-caps font-semibold uppercase tracking-widest text-secondary">Hoặc dùng sinh trắc học trên thiết bị</span>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3">
+        <button class="flex flex-col items-center justify-center rounded-xl bg-surface-container-lowest p-3.5 text-center shadow-sm transition-all hover:shadow-md active:scale-[0.97]" id="login-biometric" type="button" disabled>
+          <span class="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-low">
+            <span class="material-symbols-outlined text-[22px]">fingerprint</span>
+          </span>
+          <span class="font-headline-sm text-headline-sm text-xs">Face ID / vân tay</span>
+          <span class="font-label-caps text-label-caps text-secondary">Passkey trên thiết bị</span>
+        </button>
+      </div>
+
+      <div class="mt-5 flex items-center gap-2.5 rounded-xl bg-surface-container-low p-3 text-on-surface-variant">
+        <span class="material-symbols-outlined flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-container-lowest text-[18px] text-primary">verified_user</span>
+        <div class="flex min-w-0 flex-col">
+        <span class="font-label-md text-label-md font-semibold text-on-surface">Secure Door Control</span>
+        <span class="font-label-caps text-label-caps text-secondary">Demo only • No server authentication</span>
+        </div>
+      </div>
+
+      <p class="mt-6 text-center text-on-surface-variant">
+        Don't have an account?
+        <a class="ml-1 font-headline-sm text-headline-sm text-primary underline underline-offset-4" href="signup.html" id="register-link">Sign Up</a>
+      </p>
+    </main>
+
+    <script src="js/device-biometric.js?v=platform-passkey-3"></script>
+    <script>
+      const passwordInput = document.getElementById('login-password');
+      const passwordButton = document.getElementById('toggle-password');
+      const passwordIcon = document.getElementById('password-icon');
+      const loginForm = document.getElementById('login-form');
+      const loginSubmit = document.getElementById('login-submit');
+      const loginNotice = document.getElementById('login-notice');
+      const loginNoticeText = document.getElementById('login-notice-text');
+      const emailInput = document.getElementById('login-email');
+      const loginBiometricButton = document.getElementById('login-biometric');
+      const demoEmail = 'admin@smartperimeter.io';
+      const demoPassword = 'DoorLock@2026!';
+
+      async function updateBiometricLoginButton() {
+        try {
+          const credential = window.smartDoorBiometric.getSavedCredential();
+          const available = await window.smartDoorBiometric.isAvailable();
+          loginBiometricButton.disabled = !credential || !available;
+          loginBiometricButton.title = !available
+            ? 'Sinh trắc học cần HTTPS hoặc localhost và thiết bị hỗ trợ passkey.'
+            : credential
+              ? 'Đăng nhập bằng Face ID hoặc vân tay đã liên kết.'
+              : 'Đăng nhập mật khẩu, sau đó liên kết sinh trắc học trong tab Face ID.';
+        } catch (error) {
+          loginBiometricButton.disabled = true;
+          loginBiometricButton.title = error.message;
+        }
+      }
+
+      loginBiometricButton.addEventListener('click', async () => {
+        loginBiometricButton.disabled = true;
+        showLoginNotice('Đang xác thực bằng Face ID hoặc vân tay...');
+        try {
+          const credential = await window.smartDoorBiometric.authenticate();
+          localStorage.setItem('face-door-authenticated', 'true');
+          localStorage.setItem('face-door-account-name', credential.accountName);
+          localStorage.setItem('face-door-login-email', credential.loginEmail);
+          showLoginNotice('Đã xác thực. Đang mở trang chủ...', 'success');
+          window.setTimeout(() => window.location.replace('home.html'), 350);
+        } catch (error) {
+          showLoginNotice(error.message || 'Không thể xác thực bằng Face ID hoặc vân tay.', 'error');
+          await updateBiometricLoginButton();
+        }
+      });
+      updateBiometricLoginButton();
+
+      function showLoginNotice(message, state = 'info') {
+        loginNotice.dataset.state = state;
+        loginNotice.setAttribute('role', state === 'error' ? 'alert' : 'status');
+        loginNotice.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
+        loginNotice.querySelector('.login-notice-icon').textContent =
+          state === 'error' ? 'error' : state === 'success' ? 'check_circle' : 'info';
+        loginNoticeText.textContent = message;
+        loginNotice.hidden = false;
+      }
+
+      function clearLoginNotice() {
+        loginNotice.hidden = true;
+        loginNoticeText.textContent = '';
+        emailInput.removeAttribute('aria-invalid');
+        passwordInput.removeAttribute('aria-invalid');
+        document.querySelectorAll('.login-input-row.has-error').forEach(row => {
+          row.classList.remove('has-error');
+        });
+      }
+
+      passwordButton.addEventListener('click', () => {
+        const showPassword = passwordInput.type === 'password';
+        passwordInput.type = showPassword ? 'text' : 'password';
+        passwordIcon.textContent = showPassword ? 'visibility_off' : 'visibility';
+        passwordButton.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+      });
+
+      document.getElementById('use-demo-account').addEventListener('click', () => {
+        emailInput.value = demoEmail;
+        passwordInput.value = demoPassword;
+        clearLoginNotice();
+      });
+
+      loginForm.addEventListener('input', clearLoginNotice);
+
+      loginForm.addEventListener('submit', event => {
+        event.preventDefault();
+        emailInput.removeAttribute('aria-invalid');
+        passwordInput.removeAttribute('aria-invalid');
+        document.querySelectorAll('.login-input-row.has-error').forEach(row => {
+          row.classList.remove('has-error');
+        });
+
+        if (!emailInput.value.trim() || !emailInput.validity.valid) {
+          emailInput.setAttribute('aria-invalid', 'true');
+          emailInput.closest('.login-input-row').classList.add('has-error');
+          showLoginNotice(
+            emailInput.value.trim() ? 'Enter a valid email address, such as name@example.com.' : 'Enter your email address.',
+            'error'
+          );
+          emailInput.focus();
+          return;
+        }
+
+
+        if (!passwordInput.value) {
+          passwordInput.setAttribute('aria-invalid', 'true');
+          passwordInput.closest('.login-input-row').classList.add('has-error');
+          showLoginNotice('Enter your password.', 'error');
+          passwordInput.focus();
+          return;
+        }
+
+        if (emailInput.value.trim().toLowerCase() !== demoEmail || passwordInput.value !== demoPassword) {
+          emailInput.setAttribute('aria-invalid', 'true');
+          passwordInput.setAttribute('aria-invalid', 'true');
+          emailInput.closest('.login-input-row').classList.add('has-error');
+          passwordInput.closest('.login-input-row').classList.add('has-error');
+          showLoginNotice('Email or password is incorrect. Use the demo account shown above.', 'error');
+          passwordInput.focus();
+          return;
+        }
+
+        try {
+          localStorage.setItem('face-door-authenticated', 'true');
+          localStorage.setItem('face-door-account-name', 'Admin');
+          localStorage.setItem('face-door-login-email', demoEmail);
+        } catch (error) {
+          console.error('Could not save the signed-in demo account.', error);
+          showLoginNotice('Could not save the account on this device. Check browser storage settings.', 'error');
+          return;
+        }
+
+        loginSubmit.disabled = true;
+        loginSubmit.querySelector('span:first-child').textContent = 'Opening Home...';
+        showLoginNotice('Demo account accepted. Opening Home...', 'success');
+        window.setTimeout(() => {
+          window.location.replace('home.html');
+        }, 350);
+      });
+
+      document.querySelectorAll('[data-biometric]').forEach(button => {
+        button.addEventListener('click', () => {
+          showLoginNotice(`${button.dataset.biometric} sign-in is not configured in this demo.`);
+        });
+      });
+
+      document.getElementById('forgot-password').addEventListener('click', event => {
+        event.preventDefault();
+        showLoginNotice('Password recovery is not configured in this demo.');
+      });
+
+      document.getElementById('register-link').addEventListener('click', event => {
+        window.location.href = 'signup.html';
+      });
+    </script>
+  </body>
+</html>
