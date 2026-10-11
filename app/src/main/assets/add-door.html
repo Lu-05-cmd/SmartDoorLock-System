@@ -1,0 +1,299 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Doors - Add Device Modal</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              light: '#f8f9ff',
+              accent: '#2563eb',
+              soft: '#eff6ff',
+            }
+          },
+          animation: {
+            'radar-pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'ping-slow': 'ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="custom-layout">
+    /* iOS smooth scrolling and touch tap highlight removal */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0b0f19;
+    }
+  </style>
+<style data-purpose="sheet-animations">
+    /* Subtle radar pulse ring */
+    .pulse-ring {
+      border: 1.5px solid rgba(37, 99, 235, 0.35);
+      animation: ripple 2.4s ease-out infinite;
+    }
+    .pulse-ring-delayed {
+      border: 1.5px solid rgba(37, 99, 235, 0.2);
+      animation: ripple 2.4s ease-out 1.2s infinite;
+    }
+    @keyframes ripple {
+      0% {
+        transform: scale(0.8);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2.2);
+        opacity: 0;
+      }
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 m-0 bg-slate-950/70 select-none overflow-hidden">
+<!-- BEGIN: PhoneFrame -->
+<div class="relative w-full max-w-[428px] h-screen max-h-[926px] bg-slate-100 overflow-hidden shadow-2xl flex flex-col justify-between">
+<!-- BEGIN: BackgroundScreen (Dimmed Doors Dashboard) -->
+<div class="absolute inset-0 bg-[#f8faff] pointer-events-none filter blur-[2px] opacity-65 scale-[0.985] transform origin-top transition-transform" data-purpose="blurred-parent-doors-screen">
+<!-- Status Bar Area Mock -->
+<div class="h-11 px-7 pt-3 flex justify-between items-center text-xs font-semibold text-slate-800">
+<span class="">9:41</span>
+<div class="flex items-center space-x-1.5">
+<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"></path></svg>
+<div class="w-5 h-2.5 border border-slate-700 rounded-sm p-0.5"><div class="h-full bg-slate-800 rounded-2xs w-3/4"></div></div>
+</div>
+</div>
+<!-- Header Mock -->
+<header class="px-5 pt-3 pb-4">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center space-x-1.5 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="">Perimeter Online</span>
+</div>
+<h1 class="text-3xl font-extrabold tracking-tight text-slate-900 mt-1">Doors</h1>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-xs">
+<svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<div class="w-9 h-9 rounded-full bg-slate-900 flex items-center justify-center text-white">
+<svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+</div>
+</div>
+</div>
+</header>
+<!-- Mock Cards in Background -->
+<div class="px-5 space-y-4">
+<div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/80">
+<div class="flex justify-between items-center mb-3">
+<span class="text-xs font-semibold uppercase tracking-wider text-slate-400">House Overview • Zone A</span>
+<span class="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full font-medium">1 Unlocked</span>
+</div>
+<h2 class="text-xl font-bold text-slate-900">Perimeter Master</h2>
+<p class="text-xs text-slate-500 mt-1">Dual-band Thread network active across all entry points.</p>
+<div class="mt-4 bg-slate-900 text-white rounded-xl py-3 flex items-center justify-center font-semibold text-sm">
+            Lock All Doors
+          </div>
+</div>
+<div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/80">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<div>
+<div class="font-bold text-slate-900 text-sm">Front Door</div>
+<div class="text-xs text-slate-400">Main Entryway • 88% Battery</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- END: BackgroundScreen -->
+<!-- BEGIN: DarkenedBackdrop -->
+<div class="absolute inset-0 bg-slate-950/45 backdrop-blur-[1.5px] z-10 transition-opacity"></div>
+<!-- END: DarkenedBackdrop -->
+<!-- BEGIN: BottomSheetModal -->
+<div class="relative z-20 w-full mt-auto bg-white rounded-t-[32px] shadow-2xl flex flex-col border-t border-slate-200/80 max-h-[65vh] overflow-hidden" data-purpose="add-device-modal-sheet">
+<!-- Drag Handle Bar Indicator -->
+<div class="w-full pt-3 pb-1 flex justify-center items-center cursor-grab active:cursor-grabbing">
+<span class="w-10 h-1 bg-slate-300 rounded-full"></span>
+</div>
+<!-- Modal Header -->
+<div class="px-6 pt-2 pb-4 flex items-center justify-between border-b border-slate-100"><div>
+<div class="flex items-center space-x-2">
+<h2 class="text-xl font-bold tracking-tight text-slate-900" id="add-door-title">Cấu hình Khóa Mới</h2>
+<span class="bg-slate-100 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-slate-200/80">Thiết lập thủ công</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5" id="add-door-description">Thêm khóa vào danh sách trên thiết bị này</p>
+</div>
+<button id="close-add-lock" aria-label="Close modal" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 active:scale-95 transition flex items-center justify-center text-slate-600" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button></div>
+<!-- Modal Scrollable Content -->
+<div class="px-6 py-4 overflow-y-auto space-y-5"><div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined">add</span>
+</div>
+<div>
+<div class="text-xs font-bold text-slate-900">Thông tin khóa mới</div>
+<div class="text-[11px] text-slate-500">Khóa sẽ được thêm vào danh sách trong ứng dụng</div>
+</div>
+</div>
+<span class="text-[11px] text-slate-500 font-semibold flex items-center">
+<span class="w-1.5 h-1.5 bg-slate-400 rounded-full mr-1"></span>
+Chưa kết nối
+</span>
+</div>
+
+<div class="space-y-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-500" for="lock-name-input">Tên khóa (Lock Name)</label>
+<input id="lock-name-input" type="text" inputmode="text" enterkeyhint="done" placeholder="ví dụ: Cửa Chính, Cửa Phòng Ngủ Master, Cửa Hậu..." autocomplete="off" maxlength="48" class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:border-blue-600 shadow-2xs">
+<p class="text-[11px] text-slate-400">Tên hiển thị trên bảng điều khiển cửa và thông báo bảo mật.</p>
+</div>
+
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-500">Phân vùng / Vị trí (Zone / Placement)</label>
+</div>
+<div class="flex flex-wrap gap-2">
+<button type="button" aria-pressed="true" data-location-choice="Front Entrance" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-2xs transition">Cửa chính (Front Entrance)</button>
+<button type="button" aria-pressed="false" data-location-choice="Patio" class="px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80 transition">Sân sau (Patio)</button>
+<button type="button" aria-pressed="false" data-location-choice="Living Room" class="px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80 transition">Phòng khách (Living Room)</button>
+<button type="button" aria-pressed="false" data-location-choice="Office" class="px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80 transition">Phòng làm việc (Office)</button>
+<button type="button" aria-pressed="false" data-location-choice="Garage" class="px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80 transition">Garage</button>
+</div>
+<p class="hidden text-xs font-medium text-rose-600" id="add-lock-form-error" role="alert"></p>
+</div>
+
+<div class="space-y-2.5">
+<div>
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Phương thức bảo mật hỗ trợ (Authentication Methods)</h3>
+<p class="text-[11px] text-slate-400 mt-0.5">Chọn các tính năng bảo mật kích hoạt cho khóa này</p>
+</div>
+<div class="space-y-2">
+<div role="button" tabindex="0" aria-pressed="false" data-auth-method="pin" class="auth-method-option p-3 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 flex items-center justify-between cursor-pointer transition">
+<div class="flex items-start space-x-3">
+<div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"></rect><circle cx="8" cy="8" r="1"></circle><circle cx="12" cy="8" r="1"></circle><circle cx="16" cy="8" r="1"></circle><circle cx="8" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="16" cy="12" r="1"></circle><circle cx="8" cy="16" r="1"></circle><circle cx="12" cy="16" r="1"></circle><circle cx="16" cy="16" r="1"></circle></svg>
+</div>
+<div>
+<div class="text-xs font-bold text-slate-900">Nhập mã PIN (Keypad / PIN Code)</div>
+<p class="text-[11px] text-slate-500 mt-0.5">Mã số bảo mật gồm 8 chữ số</p>
+</div>
+</div>
+<div aria-hidden="true" class="auth-method-indicator hidden w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0 ml-2" hidden>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+</div>
+</div>
+
+<div role="button" tabindex="0" aria-pressed="false" data-auth-method="rfid" class="auth-method-option p-3 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 flex items-center justify-between cursor-pointer transition">
+<div class="flex items-start space-x-3">
+<div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M7 15h3M3 10h18"></path></svg>
+</div>
+<div>
+<div class="text-xs font-bold text-slate-900">Thẻ từ RFID / NFC (RFID Card &amp; Fob)</div>
+<p class="text-[11px] text-slate-500 mt-0.5">Chạm thẻ từ Mifare 13.56MHz hoặc vòng đeo NFC</p>
+</div>
+</div>
+<div aria-hidden="true" class="auth-method-indicator hidden w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0 ml-2" hidden>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+</div>
+</div>
+<div role="button" tabindex="0" aria-pressed="false" data-auth-method="face" class="auth-method-option p-3 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-slate-300 flex items-center justify-between cursor-pointer transition">
+<div class="flex items-start space-x-3">
+<div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined" aria-hidden="true">face</span>
+</div>
+<div>
+<div class="text-xs font-bold text-slate-900">Nhận diện khuôn mặt (Face ID)</div>
+<p class="text-[11px] text-slate-500 mt-0.5">Mở khóa bằng khuôn mặt đã đăng ký trên camera ESP32-CAM.</p>
+</div>
+</div>
+<div aria-hidden="true" class="auth-method-indicator w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0 ml-2" hidden>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between gap-3" id="pin-security-settings">
+<div>
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-500" id="pin-credential-heading">Mã PIN (không bắt buộc)</h3>
+<p class="text-[11px] text-slate-400 mt-0.5" id="pin-credential-status">Chỉ thiết lập PIN khi chọn phương thức này.</p>
+</div>
+<button class="hidden shrink-0 px-3 py-2 rounded-lg bg-slate-100 text-xs font-semibold text-slate-700" id="open-pin-setup" type="button">Đổi mã PIN</button>
+</div>
+</div>
+<!-- BEGIN: BottomSheetFooter -->
+<footer class="p-4 bg-slate-50 border-t border-slate-200/80 flex items-center justify-between">
+<button class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-semibold text-sm rounded-xl shadow transition" id="save-new-lock" type="button"><span id="add-door-submit-label">Thêm khóa</span></button>
+</footer>
+<!-- END: BottomSheetFooter -->
+<!-- iOS Home Indicator -->
+<div class="h-5 w-full flex justify-center items-center pb-2 bg-slate-50">
+<div class="w-32 h-1 bg-slate-300 rounded-full"></div>
+</div>
+</div>
+<!-- END: BottomSheetModal -->
+</div>
+<!-- END: PhoneFrame -->
+<dialog class="pin-setup-dialog" id="pin-setup-dialog" aria-labelledby="pin-setup-title" data-purpose="pin-setup-dialog">
+<div class="pin-setup-sheet">
+<div class="pin-setup-handle" aria-hidden="true"></div>
+<div class="pin-setup-icon"><span class="material-symbols-outlined">dialpad</span></div>
+<h2 id="pin-setup-title">Thêm mã PIN mới</h2>
+<p class="pin-setup-description" id="pin-setup-description">Tạo mã PIN gồm đúng 8 chữ số để bảo vệ khóa.</p>
+<div class="pin-setup-field">
+<label for="pin-setup-input">Mã PIN mới (8 chữ số)</label>
+<div class="pin-field-control">
+<div class="pin-entry">
+<input id="pin-setup-input" class="pin-entry-input" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{8}" minlength="8" maxlength="8" aria-label="Mã PIN mới, 8 chữ số" aria-describedby="pin-setup-error">
+<div class="pin-digit-slots" aria-hidden="true">
+<span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span>
+</div>
+</div>
+<button class="pin-visibility-toggle" type="button" data-pin-visibility="pin-setup-input" aria-label="Hiện mã PIN" aria-pressed="false" title="Hiện mã PIN"><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+</div>
+</div>
+<div class="pin-setup-field">
+<label for="pin-setup-confirm">Xác nhận mã PIN</label>
+<div class="pin-field-control">
+<div class="pin-entry">
+<input id="pin-setup-confirm" class="pin-entry-input" type="password" inputmode="numeric" autocomplete="new-password" pattern="[0-9]{8}" minlength="8" maxlength="8" aria-label="Xác nhận mã PIN, 8 chữ số" aria-describedby="pin-setup-error">
+<div class="pin-digit-slots" aria-hidden="true">
+<span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span><span class="pin-digit-slot" data-pin-slot></span>
+</div>
+</div>
+<button class="pin-visibility-toggle" type="button" data-pin-visibility="pin-setup-confirm" aria-label="Hiện mã PIN xác nhận" aria-pressed="false" title="Hiện mã PIN xác nhận"><span class="material-symbols-outlined" aria-hidden="true">visibility</span></button>
+</div>
+</div>
+<p class="pin-setup-error" id="pin-setup-error" role="alert" hidden></p>
+<button class="pin-setup-primary" id="pin-setup-submit" type="button">Lưu mã PIN</button>
+<button class="pin-setup-secondary" id="pin-setup-cancel" type="button">Hủy</button>
+</div>
+</dialog>
+<!-- BEGIN: Interactive Handler (Lightweight interaction for preview) -->
+<script data-purpose="light-interaction">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Small feedback on pair buttons
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.add('opacity-80');
+          setTimeout(() => btn.classList.remove('opacity-80'), 150);
+        });
+      });
+    });
+  </script>
+<!-- END: Interactive Handler -->
+</body></html>
