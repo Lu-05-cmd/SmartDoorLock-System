@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="shell-type" content="mobile_stack">
+    <script src="js/i18n.js?v=language-6"></script>
+    <title>Create Account | Face Door Control</title>
+    <script>
+      try {
+        if (localStorage.getItem('face-door-theme') !== 'light') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (error) {}
+    </script>
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        background-color: #e9ebf9;
+        color: #0b1c30;
+      }
+
+      html.dark,
+      html.dark body {
+        background-color: #101721;
+        color: #e7edf6;
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 140ms;
+        animation-timing-function: ease-out;
+      }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;500;600&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link href="css/styles.css?v=light-bg-e9ebf9" rel="stylesheet">
+    <style>
+      .signup-page {
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+
+      .signup-page .signup-header {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+
+      .signup-page .signup-main {
+        width: min(100%, 560px);
+        margin: 0 auto;
+        padding: calc(76px + env(safe-area-inset-top, 0px)) 24px 32px;
+      }
+
+      .signup-page .signup-field-row {
+        min-height: 48px;
+        border: 1px solid transparent;
+        transition: border-color 140ms ease, box-shadow 140ms ease;
+      }
+
+      .signup-page .signup-field-row:focus-within {
+        border-color: #667085;
+        box-shadow: 0 0 0 3px rgb(102 112 133 / 14%);
+      }
+
+      .signup-page .signup-field-row.has-error {
+        border-color: #b42318;
+        box-shadow: 0 0 0 2px rgb(180 35 24 / 12%);
+      }
+
+      .signup-page .signup-field[aria-invalid="true"] {
+        color: #b42318;
+      }
+
+      .signup-page .signup-notice[hidden] {
+        display: none;
+      }
+
+      .signup-page .signup-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        padding: 11px 12px;
+        border: 1px solid #f1b8b2;
+        border-radius: 12px;
+        color: #8f2018;
+        background: #fff0ee;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .signup-page .signup-notice-icon {
+        flex: 0 0 auto;
+        font-size: 18px;
+      }
+
+      .signup-page .signup-submit:disabled {
+        cursor: wait;
+        opacity: .75;
+      }
+
+      html.dark .signup-page .signup-field-row:focus-within {
+        border-color: #7899cc;
+        box-shadow: 0 0 0 3px rgb(120 153 204 / 20%);
+      }
+
+      html.dark .signup-page .signup-field-row.has-error {
+        border-color: #ff8c82;
+        box-shadow: 0 0 0 2px rgb(255 140 130 / 16%);
+      }
+
+      html.dark .signup-page .signup-field[aria-invalid="true"] {
+        color: #ffd8d3;
+      }
+
+      html.dark .signup-page .signup-notice {
+        border-color: #713d45;
+        color: #ffd8d3;
+        background: #38232a;
+      }
+
+      @media (max-width: 360px) {
+        .signup-page .signup-main {
+          padding-right: 16px;
+          padding-left: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body class="signup-page bg-surface font-body-md text-body-md text-on-surface">
+    <header class="signup-header fixed inset-x-0 top-0 z-10 bg-surface/85 shadow-sm backdrop-blur-xl">
+      <div class="mx-auto flex h-14 max-w-[560px] items-center justify-between px-4">
+        <a aria-label="Back to sign in" class="flex h-11 w-11 items-center justify-center rounded-full text-on-surface transition-colors hover:bg-surface-container-low" href="login.html">
+          <span class="material-symbols-outlined text-[20px]">arrow_back_ios_new</span>
+        </a>
+        <div class="flex flex-col items-center">
+          <div class="flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px] text-primary">lock</span>
+            <span class="font-label-caps text-label-caps font-semibold uppercase tracking-wider text-secondary">Perimeter Online</span>
+          </div>
+          <span class="font-headline-sm text-headline-sm">Create Account</span>
+        </div>
+        <span aria-hidden="true" class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-on-primary">
+          <span class="material-symbols-outlined text-[18px]">person</span>
+        </span>
+      </div>
+    </header>
+
+    <main class="signup-main">
+      <section class="mb-5 flex flex-col items-start gap-2">
+        <span class="inline-flex items-center gap-2 rounded-full bg-secondary-container px-3 py-1 text-on-secondary-container">
+          <span class="h-2 w-2 animate-pulse rounded-full bg-primary"></span>
+          <span class="font-label-caps text-label-caps font-semibold uppercase tracking-wider">Perimeter Enrollment</span>
+        </span>
+        <h1 class="font-headline-lg text-headline-lg tracking-tight">Create Account</h1>
+        <p class="text-on-surface-variant">Set up an administrator profile to manage your smart locks and access settings.</p>
+      </section>
+
+      <div class="mb-5 flex items-center justify-between gap-3 rounded-xl bg-surface-container-low p-3.5 shadow-sm">
+        <div class="flex min-w-0 items-center gap-3">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-container-highest text-on-surface">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+          </span>
+          <span class="min-w-0">
+            <span class="flex items-center gap-1 font-headline-sm text-headline-sm">
+              <span>Primary Household Admin</span>
+              <span aria-label="Verified role" class="material-symbols-outlined text-[16px] text-primary">verified</span>
+            </span>
+            <span class="font-label-caps text-label-caps uppercase text-secondary">Tier 0 Security Clearance</span>
+          </span>
+        </div>
+        <span aria-hidden="true" class="h-2 w-2 shrink-0 rounded-full bg-primary"></span>
+      </div>
+
+      <form class="flex flex-col gap-4" id="signup-form" novalidate>
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-md text-label-md font-medium text-on-surface-variant" for="signup-name">Full Name</label>
+          <div class="signup-field-row flex items-center gap-3 rounded-xl bg-surface-container-lowest px-3.5 shadow-sm">
+            <span aria-hidden="true" class="material-symbols-outlined text-[20px] text-secondary">person</span>
+            <input class="signup-field h-12 min-w-0 flex-1 bg-transparent text-on-surface outline-none placeholder:text-outline-variant" id="signup-name" autocomplete="name" enterkeyhint="next" inputmode="text" maxlength="80" placeholder="Nguyen Van A" required type="text">
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-md text-label-md font-medium text-on-surface-variant" for="signup-email">Email Address</label>
+          <div class="signup-field-row flex items-center gap-3 rounded-xl bg-surface-container-lowest px-3.5 shadow-sm">
+            <span aria-hidden="true" class="material-symbols-outlined text-[20px] text-secondary">alternate_email</span>
+            <input class="signup-field h-12 min-w-0 flex-1 bg-transparent text-on-surface outline-none placeholder:text-outline-variant" id="signup-email" autocomplete="email" enterkeyhint="next" inputmode="email" placeholder="admin@example.com" required type="email">
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <label class="font-label-md text-label-md font-medium text-on-surface-variant" for="signup-password">Master Password</label>
+            <span class="font-label-caps text-label-caps uppercase text-secondary" id="password-strength">At least 8 characters</span>
+          </div>
+          <div class="signup-field-row relative flex items-center gap-3 rounded-xl bg-surface-container-lowest px-3.5 shadow-sm">
+            <span aria-hidden="true" class="material-symbols-outlined text-[20px] text-secondary">lock</span>
+            <input class="signup-field h-12 min-w-0 flex-1 bg-transparent pr-10 text-on-surface outline-none placeholder:text-outline-variant" id="signup-password" autocomplete="new-password" enterkeyhint="next" minlength="8" placeholder="Create a password" required type="password">
+            <button aria-label="Show password" class="absolute right-2 flex h-9 w-9 items-center justify-center rounded-lg text-secondary" id="toggle-signup-password" type="button">
+              <span aria-hidden="true" class="material-symbols-outlined text-[20px]" id="signup-password-icon">visibility</span>
+            </button>
+          </div>
+          <div aria-hidden="true" class="flex gap-1.5 px-1">
+            <span class="h-1 flex-1 overflow-hidden rounded-full bg-surface-container-highest"><span class="block h-full w-0 transition-all" id="password-meter-1"></span></span>
+            <span class="h-1 flex-1 overflow-hidden rounded-full bg-surface-container-highest"><span class="block h-full w-0 transition-all" id="password-meter-2"></span></span>
+            <span class="h-1 flex-1 overflow-hidden rounded-full bg-surface-container-highest"><span class="block h-full w-0 transition-all" id="password-meter-3"></span></span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-md text-label-md font-medium text-on-surface-variant" for="signup-confirm-password">Confirm Master Password</label>
+          <div class="signup-field-row relative flex items-center gap-3 rounded-xl bg-surface-container-lowest px-3.5 shadow-sm">
+            <span aria-hidden="true" class="material-symbols-outlined text-[20px] text-secondary">shield_locked</span>
+            <input class="signup-field h-12 min-w-0 flex-1 bg-transparent pr-10 text-on-surface outline-none placeholder:text-outline-variant" id="signup-confirm-password" autocomplete="new-password" enterkeyhint="done" placeholder="Re-enter your password" required type="password">
+            <span aria-label="Passwords match" class="material-symbols-outlined absolute right-3 text-primary opacity-0 transition-opacity" id="password-match">check_circle</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 pt-1">
+          <label class="flex cursor-pointer items-start gap-3">
+            <input class="mt-1 h-4 w-4 shrink-0 accent-current" id="signup-terms" required type="checkbox">
+            <span class="text-sm">I agree to the Perimeter Security Protocols and End-User License Agreement.</span>
+          </label>
+        </div>
+
+        <button class="signup-submit mt-1 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 font-label-lg text-label-lg font-semibold text-on-primary shadow-sm transition-transform active:scale-[0.985]" id="signup-submit" type="submit">
+          <span>Create Account</span>
+          <span aria-hidden="true" class="material-symbols-outlined text-[18px]">key</span>
+        </button>
+        <div aria-live="polite" class="signup-notice" hidden id="signup-notice" role="alert">
+          <span aria-hidden="true" class="material-symbols-outlined signup-notice-icon">error</span>
+          <span id="signup-notice-text"></span>
+        </div>
+      </form>
+
+      <div class="my-6 flex items-center gap-3">
+        <span aria-hidden="true" class="h-px flex-1 bg-surface-container-highest"></span>
+        <span class="text-center font-label-caps text-label-caps font-semibold uppercase tracking-wider text-secondary">Have a Physical Gateway Hub?</span>
+        <span aria-hidden="true" class="h-px flex-1 bg-surface-container-highest"></span>
+      </div>
+      <button class="flex min-h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-surface-container-lowest px-4 font-label-lg text-label-lg font-medium shadow-sm" id="scan-gateway" type="button">
+        <span aria-hidden="true" class="material-symbols-outlined text-[20px] text-primary">qr_code_scanner</span>
+        <span>Scan QR Code on Door Lock Box</span>
+      </button>
+
+      <p class="mt-7 text-center text-on-surface-variant">
+        Already have an account?
+        <a class="ml-1 font-headline-sm text-headline-sm text-primary underline underline-offset-4" href="login.html">Log In</a>
+      </p>
+    </main>
+
+    <script>
+      const signupForm = document.getElementById('signup-form');
+      const signupName = document.getElementById('signup-name');
+      const signupEmail = document.getElementById('signup-email');
+      const signupPassword = document.getElementById('signup-password');
+      const signupConfirmPassword = document.getElementById('signup-confirm-password');
+      const signupNotice = document.getElementById('signup-notice');
+      const signupNoticeText = document.getElementById('signup-notice-text');
+      const passwordMatch = document.getElementById('password-match');
+
+      function showSignupNotice(message) {
+        signupNoticeText.textContent = message;
+        signupNotice.hidden = false;
+      }
+
+      function clearSignupError() {
+        signupNotice.hidden = true;
+        signupNoticeText.textContent = '';
+        document.querySelectorAll('.signup-field-row.has-error').forEach(row => {
+          row.classList.remove('has-error');
+        });
+        document.querySelectorAll('.signup-field[aria-invalid="true"]').forEach(field => {
+          field.removeAttribute('aria-invalid');
+        });
+      }
+
+      function updatePasswordMatch() {
+        const matches = signupConfirmPassword.value.length > 0
+          && signupPassword.value === signupConfirmPassword.value;
+        passwordMatch.classList.toggle('opacity-100', matches);
+        passwordMatch.classList.toggle('opacity-0', !matches);
+      }
+
+      document.getElementById('toggle-signup-password').addEventListener('click', event => {
+        const button = event.currentTarget;
+        const showPassword = signupPassword.type === 'password';
+        signupPassword.type = showPassword ? 'text' : 'password';
+        document.getElementById('signup-password-icon').textContent =
+          showPassword ? 'visibility_off' : 'visibility';
+        button.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+      });
+
+      signupPassword.addEventListener('input', () => {
+        const meters = [
+          document.getElementById('password-meter-1'),
+          document.getElementById('password-meter-2'),
+          document.getElementById('password-meter-3')
+        ];
+        const strengthLabel = document.getElementById('password-strength');
+        const length = signupPassword.value.length;
+        const strength = length === 0 ? 0 : length < 8 ? 1 : length < 12 ? 2 : 3;
+        const meterClasses = [
+          'block h-full w-full bg-error transition-all',
+          'block h-full w-full bg-primary transition-all',
+          'block h-full w-full bg-emerald-500 transition-all'
+        ];
+
+        meters.forEach((meter, index) => {
+          meter.className = index < strength ? meterClasses[strength - 1] : 'block h-full w-0 transition-all';
+        });
+        strengthLabel.textContent = strength === 0
+          ? 'At least 8 characters'
+          : strength === 1
+            ? 'Too short'
+            : strength === 2
+              ? 'Good password'
+              : 'Strong password';
+        strengthLabel.classList.toggle('text-error', strength === 1);
+        updatePasswordMatch();
+      });
+
+      signupConfirmPassword.addEventListener('input', updatePasswordMatch);
+      signupForm.addEventListener('input', clearSignupError);
+
+      signupForm.addEventListener('submit', event => {
+        event.preventDefault();
+        clearSignupError();
+
+        const fields = [signupName, signupEmail, signupPassword, signupConfirmPassword];
+        const invalidField = fields.find(field => !field.value.trim() || !field.validity.valid);
+        if (invalidField) {
+          invalidField.setAttribute('aria-invalid', 'true');
+          invalidField.closest('.signup-field-row').classList.add('has-error');
+          const fieldLabel = invalidField === signupName
+            ? 'Full Name'
+            : invalidField === signupEmail
+              ? 'Email Address'
+              : invalidField === signupPassword
+                ? 'Master Password'
+                : 'Confirm Master Password';
+          showSignupNotice(invalidField === signupPassword && signupPassword.value.length < 8
+            ? 'Use a password with at least 8 characters.'
+            : invalidField === signupEmail && signupEmail.value.trim()
+              ? 'Enter a valid email address.'
+              : `Complete the ${fieldLabel} field.`);
+          invalidField.focus();
+          return;
+        }
+
+        if (signupPassword.value !== signupConfirmPassword.value) {
+          signupConfirmPassword.setAttribute('aria-invalid', 'true');
+          signupConfirmPassword.closest('.signup-field-row').classList.add('has-error');
+          showSignupNotice('The passwords do not match.');
+          signupConfirmPassword.focus();
+          return;
+        }
+
+        if (!document.getElementById('signup-terms').checked) {
+          showSignupNotice('Accept the security protocols and user agreement to continue.');
+          document.getElementById('signup-terms').focus();
+          return;
+        }
+
+        showSignupNotice('Account registration is not configured. No account was created.');
+      });
+
+      document.getElementById('scan-gateway').addEventListener('click', () => {
+        showSignupNotice('Gateway QR registration is not configured in this demo.');
+      });
+    </script>
+  </body>
+</html>
