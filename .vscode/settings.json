@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^python -m http\\.server 8766 --bind 127\\.0\\.0\\.1 --directory 'D:\\\\Face-Recognition-Door-Lock-main\\\\app\\\\src\\\\main\\\\assets'$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
