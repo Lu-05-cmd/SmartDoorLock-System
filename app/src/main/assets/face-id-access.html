@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Doors - Add Device Modal</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              light: '#f8f9ff',
+              accent: '#2563eb',
+              soft: '#eff6ff',
+            }
+          },
+          animation: {
+            'radar-pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'ping-slow': 'ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="custom-layout">
+    /* iOS smooth scrolling and touch tap highlight removal */
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #0b0f19;
+    }
+  </style>
+<style data-purpose="sheet-animations">
+    /* Subtle radar pulse ring */
+    .pulse-ring {
+      border: 1.5px solid rgba(37, 99, 235, 0.35);
+      animation: ripple 2.4s ease-out infinite;
+    }
+    .pulse-ring-delayed {
+      border: 1.5px solid rgba(37, 99, 235, 0.2);
+      animation: ripple 2.4s ease-out 1.2s infinite;
+    }
+    @keyframes ripple {
+      0% {
+        transform: scale(0.8);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2.2);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 m-0 bg-slate-950/70 select-none overflow-hidden">
+<!-- END: BottomSheetModal -->
+<div class="absolute inset-0 z-30 flex flex-col justify-end items-center bg-slate-950/60 backdrop-blur-[2px] transition-all" data-purpose="face-id-authorization-overlay"><div class="w-full bg-white rounded-t-[28px] p-5 shadow-2xl border-t border-slate-200/80 flex flex-col items-center space-y-3.5 max-h-[90vh] overflow-y-auto"><div class="w-10 h-1 bg-slate-300 rounded-full -mt-1 mb-0.5 shrink-0"></div><div class="w-13 h-13 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-xs shrink-0 p-3"><svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" stroke-width="1.8" viewbox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2m-10 0H5a2 2 0 01-2-2v-2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="9" cy="10" fill="currentColor" r="1.2"></circle><circle cx="15" cy="10" fill="currentColor" r="1.2"></circle><path d="M9.5 15a3.5 3.5 0 005 0" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 11.5v1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div><div class="space-y-1 text-center px-2"><h3 class="text-base font-bold text-slate-900 tracking-tight">Ủy quyền mở khóa bằng Face ID</h3><p class="text-xs text-slate-500 leading-relaxed">Bạn đã kích hoạt nhận diện khuôn mặt cho khóa này. Hãy chọn hoặc thêm người dùng được cấp quyền nhận diện để nạp dữ liệu sinh trắc học ngay.</p></div><div class="w-full flex items-center justify-between px-3 py-1.5 bg-blue-50/60 border border-blue-200/60 rounded-xl"><div class="flex items-center space-x-1.5"><svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="16" rx="2" width="16" x="4" y="4"></rect><rect height="6" width="6" x="9" y="9"></rect><path d="M9 2v2m6-2v2m-6 16v2m6-2v2M2 9h2m-2 6h2m16-6h2m-2 6h2"></path></svg><span class="text-[11px] font-semibold text-slate-700">ESP32 Hardware Storage</span></div><span class="text-[10px] font-bold text-blue-700 bg-white px-2 py-0.5 rounded-full border border-blue-200 shadow-2xs">1 / 5 slot khả dụng</span></div><div class="w-full space-y-2"><div class="flex items-center justify-between"><span class="text-xs font-bold uppercase tracking-wider text-slate-500">Thành viên cấp quyền (Authorized Members)</span><span class="text-[11px] text-blue-600 font-semibold cursor-pointer hover:underline">Chọn tất cả</span></div><div class="p-3 rounded-xl bg-blue-50/40 border-2 border-blue-600 flex items-center justify-between transition"><div class="flex items-center space-x-3"><div class="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">NA</div><div><div class="flex items-center space-x-1.5"><span class="text-xs font-bold text-slate-900">Nguyễn Văn A</span><span class="text-[10px] bg-slate-900 text-white font-medium px-1.5 py-0.2 rounded">Chủ nhà</span></div><p class="text-[11px] text-emerald-600 font-medium flex items-center mt-0.5"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1 animate-pulse"></span>Đã lưu Face ID 3D trên hệ thống</p></div></div><div class="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg></div></div><div class="p-3 rounded-xl bg-white border border-slate-200/90 hover:border-slate-300 flex items-center justify-between transition"><div class="flex items-center space-x-3"><div class="w-9 h-9 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">LN</div><div><div class="flex items-center space-x-1.5"><span class="text-xs font-bold text-slate-900">Lê Hoàng Nam</span><span class="text-[10px] bg-slate-100 text-slate-600 font-medium px-1.5 py-0.2 rounded">Thành viên</span></div><p class="text-[11px] text-slate-500 mt-0.5">Đã có dữ liệu Face ID cá nhân</p></div></div><div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center text-white shrink-0"></div></div><button class="w-full py-2 px-3 border border-dashed border-blue-400 bg-blue-50/30 hover:bg-blue-50/70 text-blue-600 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition active:scale-[0.99]" type="button"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg><span>Thêm &amp; Quét khuôn mặt thành viên mới</span></button></div><div class="w-full space-y-1.5 pt-0.5"><div class="flex justify-between items-center"><span class="text-xs font-bold uppercase tracking-wider text-slate-500">Phân quyền &amp; Thời hạn</span><span class="text-[11px] text-slate-500">Toàn quyền mở</span></div><div class="grid grid-cols-3 gap-1.5"><div class="py-1.5 px-2 bg-slate-900 text-white rounded-lg text-center text-[11px] font-semibold shadow-2xs">Toàn thời gian</div><div class="py-1.5 px-2 bg-slate-100 text-slate-700 border border-slate-200/80 rounded-lg text-center text-[11px] font-medium">Theo lịch trình</div><div class="py-1.5 px-2 bg-slate-100 text-slate-700 border border-slate-200/80 rounded-lg text-center text-[11px] font-medium">Tạm thời</div></div></div><div class="w-full space-y-2 pt-1"><button class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl shadow-xs transition active:scale-[0.99]" type="button">Xác nhận &amp; Cấp quyền Face ID</button><button class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs rounded-xl transition active:scale-[0.99]" type="button">Để sau (Chưa cấp quyền lúc này)</button></div><div class="h-1"></div></div></div></div>
+<!-- END: PhoneFrame -->
+<!-- BEGIN: Interactive Handler (Lightweight interaction for preview) -->
+<script data-purpose="light-interaction">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Small feedback on pair buttons
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.add('opacity-80');
+          setTimeout(() => btn.classList.remove('opacity-80'), 150);
+        });
+      });
+    });
+  </script>
+<!-- END: Interactive Handler -->
+<script src="js/api-client.js?v=face-access-overlay-1"></script>
+<script src="js/face-id-access.js?v=face-access-overlay-5"></script>
+</body></html>
