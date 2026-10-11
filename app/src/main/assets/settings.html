@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="shell-type" content="mobile_tab">
+    <script src="js/i18n.js?v=settings-trim-1"></script>
+    <title>Settings | Face Door Control</title>
+    <script>
+      try {
+        if (localStorage.getItem('face-door-theme') !== 'light') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (error) {}
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link href="css/styles.css?v=face-enrollment-2" rel="stylesheet">
+    <link href="css/settings.css?v=settings-trim-2" rel="stylesheet">
+  </head>
+  <body class="settings-page bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen">
+    <header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] pt-safe">
+      <div class="h-16 px-space-md flex items-center justify-between">
+        <div class="flex items-center gap-space-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+          <h1 class="font-headline-md text-headline-md tracking-tight text-on-surface">Settings</h1>
+        </div>
+        <span class="system-indicator"><span class="status-dot"></span>Online</span>
+      </div>
+    </header>
+
+    <main class="app-page-content flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen">
+      <div class="flex flex-col w-full px-space-md pb-space-xl gap-space-lg">
+        <section class="flex flex-col gap-space-xs mt-space-sm page-sticky-heading settings-sticky-heading" aria-labelledby="settings-title">
+          <div class="flex items-center gap-space-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+            <span class="font-label-caps text-label-caps uppercase tracking-wider text-secondary">System &amp; Preferences</span>
+          </div>
+          <h2 class="font-headline-lg text-headline-lg tracking-tight text-on-surface" id="settings-title">Settings</h2>
+          <p class="font-body-md text-body-md text-secondary">Configure security protocols, door behavior, and device health.</p>
+        </section>
+
+        <section class="settings-card account-card" aria-labelledby="account-title">
+          <div class="account-avatar"><span class="material-symbols-outlined">person</span></div>
+          <div class="setting-copy">
+            <h3 id="account-title">Account</h3>
+            <div class="account-login-row">
+              <div class="account-user-details">
+                <p id="account-user-name">Sign in to your account</p>
+                <p class="account-user-email" hidden id="account-user-email"></p>
+              </div>
+              <a class="small-action account-login-link" href="login.html" id="account-login-link">
+                <span class="material-symbols-outlined" aria-hidden="true">login</span>
+                <span>Login</span>
+              </a>
+              <button class="small-action account-logout-button" hidden id="account-logout-button" type="button">
+                <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+                <span>Log out</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="contact-methods-title">
+          <div class="section-heading"><h3 class="font-headline-sm text-headline-sm text-on-surface" id="contact-methods-title">Account verification</h3><span class="section-label">Contact methods</span></div>
+          <div class="settings-card contact-methods">
+            <div class="contact-method-row">
+              <div class="setting-icon"><span class="material-symbols-outlined">badge</span></div>
+              <div class="setting-copy"><h4>Email address</h4><p class="contact-value" id="account-email-value">Not linked</p></div>
+              <span class="verification-badge" id="account-email-status">Not linked</span>
+              <button class="verify-action" data-contact-type="email" type="button">Link email</button>
+            </div>
+            <div class="setting-divider"></div>
+            <div class="contact-method-row">
+              <div class="setting-icon"><span class="material-symbols-outlined">phone_iphone</span></div>
+              <div class="setting-copy"><h4>Phone number</h4><p class="contact-value" id="account-phone-value">Not linked</p></div>
+              <span class="verification-badge" id="account-phone-status">Not linked</span>
+              <button class="verify-action" data-contact-type="phone" type="button">Link phone</button>
+            </div>
+            <p class="verification-note">Email and SMS verification are not configured yet. Linked details remain unverified on this device.</p>
+          </div>
+        </section>
+
+        <dialog class="account-dialog" id="contact-dialog" aria-labelledby="contact-dialog-title">
+          <div class="dialog-content">
+            <h3 id="contact-dialog-title">Link contact</h3>
+            <label class="account-name-label" id="contact-input-label" for="contact-input">Contact</label>
+            <input class="account-name-input" id="contact-input" type="text" inputmode="text" enterkeyhint="done" autocomplete="off">
+            <p class="verification-note" id="contact-dialog-message"></p>
+            <div class="dialog-actions">
+              <button class="small-action" id="close-contact-dialog" type="button">Close</button>
+              <button class="small-action" id="save-contact" type="button">Save locally</button>
+            </div>
+          </div>
+        </dialog>
+
+        <section class="settings-section" aria-labelledby="privacy-title">
+          <div class="section-heading"><h3 class="font-headline-sm text-headline-sm text-on-surface" id="privacy-title">Privacy &amp; Activity</h3><span class="section-label">Account</span></div>
+          <div class="settings-card settings-list">
+            <div class="setting-row">
+              <div class="setting-main"><div class="setting-icon"><span class="material-symbols-outlined">shield</span></div><div class="setting-copy"><h4>Privacy check</h4><p>Review where account details are stored</p></div></div>
+              <span class="section-label">On device</span>
+            </div>
+            <div class="setting-divider"></div>
+            <button class="setting-action" id="open-activity-log" type="button"><span class="material-symbols-outlined">history</span><span>Activity log</span><span class="material-symbols-outlined trailing-icon">chevron_right</span></button>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="content-preferences-title">
+          <div class="section-heading"><h3 class="font-headline-sm text-headline-sm text-on-surface" id="content-preferences-title">Content preferences</h3></div>
+          <div class="settings-card">
+            <div class="setting-row">
+              <div class="setting-main">
+                <div class="setting-icon"><span class="material-symbols-outlined">dark_mode</span></div>
+                <div class="setting-copy"><h4>Dark mode</h4><p>Use a darker appearance across the app</p></div>
+              </div>
+              <button class="toggle-switch" data-theme-toggle type="button" role="switch" aria-checked="false" aria-label="Dark mode"></button>
+            </div>
+            <div class="setting-divider"></div>
+            <div class="setting-row">
+              <div class="setting-main">
+                <div class="setting-icon"><span class="material-symbols-outlined">language</span></div>
+                <div class="setting-copy"><h4>Language</h4><p>Choose the language used throughout the app.</p></div>
+              </div>
+              <select aria-label="Choose language" class="small-action" data-language-select>
+                <option value="vi">Tiếng Việt</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="auth-title">
+          <div class="section-heading">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface" id="auth-title">Authentication Methods</h3>
+            <span class="section-label">Credentials</span>
+          </div>
+          <div class="settings-card settings-list">
+            <div class="setting-row"><div class="setting-main"><div class="setting-icon"><span class="material-symbols-outlined">pin</span></div><div class="setting-copy"><h4>PIN Password</h4><p>8-Digit Master PIN (••••••••)</p></div></div><button class="small-action" type="button">Change</button></div>
+            <div class="setting-divider"></div>
+            <div class="setting-row"><div class="setting-main"><div class="setting-icon"><span class="material-symbols-outlined">contactless</span></div><div class="setting-copy"><h4>RFID Key Card</h4><p>2 Cards Paired (Family, Guest)</p></div></div><button class="small-action" type="button">Manage</button></div>
+            <div class="setting-divider"></div>
+            <button class="setting-row setting-row-action" type="button"><div class="setting-main"><div class="setting-icon"><span class="material-symbols-outlined">vpn_key</span></div><div class="setting-copy"><h4>Guest Temporary Pass</h4><p>Create One-Time or Scheduled Code</p></div></div><span class="material-symbols-outlined trailing-icon">add_circle</span></button>
+          </div>
+        </section>
+
+        <section class="settings-card flex flex-col gap-space-md" aria-labelledby="scope-title">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="font-label-caps text-label-caps text-secondary uppercase" id="scope-title">Active Device Scope</h3>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-md text-label-md"><span class="status-dot"></span>1 Lock Connected</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5 bg-surface-container-low p-1 rounded-lg" id="scope-selector" role="group" aria-label="Select lock">
+            <button class="scope-btn selected" type="button"><span>Front Door</span><small>Master</small></button>
+            <button class="scope-btn" type="button"><span>Back Door</span><small>Patio</small></button>
+            <button class="scope-btn" type="button"><span>Garage Entry</span><small>Utility</small></button>
+          </div>
+          <div class="flex items-center justify-between pt-1 text-on-surface-variant font-label-md text-label-md">
+            <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">device_hub</span><span>Thread Mesh Online</span></div>
+            <div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[18px]">battery_charging_full</span><span class="font-medium text-on-surface">88% Healthy</span></div>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="automation-title">
+          <div class="section-heading"><h3 class="font-headline-sm text-headline-sm text-on-surface" id="automation-title">Door Automation &amp; Behavior</h3><span class="section-label">Hardware</span></div>
+          <div class="settings-card settings-list">
+            <div class="setting-row setting-row-stacked">
+              <div class="setting-main"><div class="setting-copy"><h4>Auto-Lock</h4><p>Engage deadbolt after closing</p></div><button class="toggle-switch is-on" type="button" role="switch" aria-checked="true" aria-label="Auto-Lock"></button></div>
+              <div class="delay-control"><span class="font-label-caps text-label-caps text-secondary">DELAY DURATION</span><div class="grid grid-cols-4 gap-2" id="delay-selector"><button class="delay-pill" type="button">5s</button><button class="delay-pill selected" type="button">10s</button><button class="delay-pill" type="button">30s</button><button class="delay-pill" type="button">60s</button></div></div>
+            </div>
+            <div class="setting-divider"></div>
+            <div class="setting-row"><div class="setting-copy"><h4>Passage Mode</h4><p>Keep unlocked during events or deliveries</p></div><button class="toggle-switch" type="button" role="switch" aria-checked="false" aria-label="Passage Mode"></button></div>
+            <div class="setting-divider"></div>
+            <div class="setting-row"><div class="setting-copy"><div class="setting-title-line"><h4>Forced Entry &amp; Tamper Alarm</h4><span class="alert-dot"></span></div><p>Trigger 90dB internal siren on violent intrusion</p></div><button class="toggle-switch is-on" type="button" role="switch" aria-checked="true" aria-label="Forced Entry and Tamper Alarm"></button></div>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="notifications-title">
+          <div class="section-heading"><h3 class="font-headline-sm text-headline-sm text-on-surface" id="notifications-title">Notifications &amp; Alerts</h3><span class="section-label">Telemetry</span></div>
+          <div class="settings-card settings-list">
+            <div class="setting-row"><div class="setting-copy"><h4>Lock &amp; Unlock Events</h4><p>Push updates on manual or digital toggles</p></div><button class="toggle-switch is-on" type="button" role="switch" aria-checked="true" aria-label="Lock and Unlock Events"></button></div>
+            <div class="setting-divider"></div>
+            <div class="setting-row"><div class="setting-copy"><h4>Failed Attempt Alerts</h4><p>Immediate priority banner after 3 false codes</p></div><button class="toggle-switch is-on" type="button" role="switch" aria-checked="true" aria-label="Failed Attempt Alerts"></button></div>
+            <div class="setting-divider"></div>
+            <div class="setting-row"><div class="setting-copy"><h4>Low Battery Warning</h4><p>Notify threshold at 20% remaining</p></div><button class="toggle-switch is-on" type="button" role="switch" aria-checked="true" aria-label="Low Battery Warning"></button></div>
+          </div>
+        </section>
+
+        <section class="settings-section" aria-labelledby="diagnostics-title">
+          <div class="section-heading"><h3 class="font-headline-sm text-headline-sm text-on-surface" id="diagnostics-title">Hardware Diagnostics</h3><span class="section-label">Specs</span></div>
+          <div class="settings-card settings-list">
+            <div class="setting-row"><div class="setting-main"><div class="setting-icon"><span class="material-symbols-outlined">system_update</span></div><div class="setting-copy"><h4>Firmware Version</h4><p>ESP32-CAM • Connected device</p></div></div><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md"><span class="material-symbols-outlined text-[14px]">check</span>Online</span></div>
+            <div class="setting-divider"></div>
+            <div class="setting-row"><div class="setting-main"><div class="setting-icon"><span class="material-symbols-outlined">router</span></div><div class="setting-copy"><h4>Network</h4><p id="settings-device-address">Local Wi-Fi connection</p></div></div><span class="section-label">ESP32-CAM</span></div>
+            <div class="setting-divider"></div>
+            <button class="self-test-button" id="btn-self-test" type="button"><span class="material-symbols-outlined">build_circle</span><span>Run Lock Self-Test</span></button>
+            <div class="self-test-status hidden" id="self-test-status" role="status"><span class="status-dot"></span><span>Motor alignment &amp; deadbolt torque nominal.</span><strong>PASS</strong></div>
+          </div>
+        </section>
+
+        <section class="settings-section danger-zone" aria-label="Terminal actions">
+          <button class="setting-action" type="button"><span class="material-symbols-outlined">restart_alt</span><span>Reboot Gateway Hub</span></button>
+          <button class="setting-action danger-action" type="button"><span class="material-symbols-outlined">link_off</span><span>Unpair Door Lock</span></button>
+        </section>
+      </div>
+    </main>
+
+    <nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.04)]" aria-label="Main navigation">
+      <div class="flex justify-around items-center h-16 px-space-sm">
+        <a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors" data-path="home" href="home.html"><span class="material-symbols-outlined text-[24px]">home</span><span class="font-label-md text-label-md">Home</span></a>
+        <a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors" data-path="activity" href="activity.html"><span class="material-symbols-outlined text-[24px]">history</span><span class="font-label-md text-label-md">Activity</span></a>
+        <a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-primary font-semibold transition-colors" data-path="settings" href="#settings"><span class="material-symbols-outlined text-[24px]">settings</span><span class="font-label-md text-label-md">Settings</span></a>
+      </div>
+    </nav>
+    <script src="js/settings.js?v=settings-trim-2"></script>
+  </body>
+</html>
