@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="shell-type" content="mobile_tab">
+    <script src="js/i18n.js?v=language-6"></script>
+    <title>Activity | Face Door Control</title>
+    <script>
+      try {
+        if (localStorage.getItem('face-door-theme') !== 'light') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (error) {}
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <link href="css/styles.css?v=face-enrollment-2" rel="stylesheet">
+    <link href="css/activity.css" rel="stylesheet">
+  </head>
+  <body class="activity-page bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen">
+    <header class="fixed top-0 inset-x-0 z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)] pt-safe">
+      <div class="h-16 px-space-md flex items-center justify-between">
+        <div class="flex items-center gap-space-sm">
+          <div class="flex flex-col">
+            <div class="flex items-center gap-space-xs">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+              <span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Perimeter Online</span>
+            </div>
+            <h1 class="font-headline-md text-headline-md text-on-surface leading-tight">Doors</h1>
+          </div>
+        </div>
+        <div class="flex items-center gap-space-xs">
+          <button aria-label="Quick Status Overview" class="w-11 h-11 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface" type="button"><span class="material-symbols-outlined text-[22px]">shield</span></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-page-content flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface px-space-md">
+      <div class="flex flex-col w-full pb-8 space-y-5">
+        <section class="flex flex-col space-y-1 page-sticky-heading activity-sticky-heading" aria-labelledby="activity-title">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-label-caps text-label-caps text-secondary uppercase tracking-widest">Access Logs &amp; Audit Trail</p>
+              <h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight" id="activity-title">Activity</h2>
+            </div>
+            <button aria-label="Filter events" class="w-10 h-10 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-sm active:scale-95 transition-transform text-on-surface" id="searchFilterToggle" type="button"><span class="material-symbols-outlined text-[20px]">tune</span></button>
+          </div>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Real-time perimeter access verification across all gateways.</p>
+        </section>
+
+        <section class="grid grid-cols-3 gap-2 p-3 rounded-xl bg-surface-container-lowest shadow-sm" aria-label="Activity summary">
+          <div class="flex flex-col p-2 rounded-lg bg-surface-container-low"><div class="flex items-center gap-1 text-secondary"><span class="material-symbols-outlined text-[15px]">event_note</span><span class="font-label-caps text-label-caps uppercase">Today</span></div><p class="font-headline-sm text-headline-sm text-on-surface mt-1">14</p><span class="font-label-md text-label-md text-secondary">Total events</span></div>
+          <div class="flex flex-col p-2 rounded-lg bg-surface-container-low"><div class="flex items-center gap-1 text-secondary"><span class="material-symbols-outlined text-[15px]">lock_open</span><span class="font-label-caps text-label-caps uppercase">Unlocked</span></div><p class="font-headline-sm text-headline-sm text-on-surface mt-1">9</p><span class="font-label-md text-label-md text-secondary">Authorized</span></div>
+          <div class="flex flex-col p-2 rounded-lg bg-error-container"><div class="flex items-center gap-1 text-error"><span class="material-symbols-outlined text-[15px]">warning</span><span class="font-label-caps text-label-caps uppercase">Alert</span></div><p class="font-headline-sm text-headline-sm text-on-error-container mt-1">1</p><span class="font-label-md text-label-md text-on-error-container">Security flag</span></div>
+        </section>
+
+        <div class="overflow-x-auto -mx-space-md px-space-md flex items-center gap-2 no-scrollbar py-0.5" id="chipGroup" aria-label="Filter activity">
+          <button class="filter-chip active flex-shrink-0 px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md transition-all shadow-sm" data-filter="all" type="button">All Doors</button>
+          <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md shadow-sm transition-all hover:bg-surface-container-low" data-filter="front" type="button">Front Door</button>
+          <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md shadow-sm transition-all hover:bg-surface-container-low" data-filter="back" type="button">Back Door</button>
+          <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md shadow-sm transition-all hover:bg-surface-container-low" data-filter="garage" type="button">Garage</button>
+          <button class="filter-chip flex-shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-secondary font-label-md text-label-md shadow-sm transition-all hover:bg-surface-container-low flex items-center gap-1" data-filter="alerts" type="button"><span class="w-1.5 h-1.5 rounded-full bg-error"></span>Alerts &amp; Denied</button>
+        </div>
+
+        <section class="flex flex-col space-y-6" id="activityTimeline" aria-label="Activity timeline">
+          <div class="flex flex-col space-y-2.5">
+            <div class="flex items-center justify-between px-1"><span class="font-label-caps text-label-caps uppercase tracking-wider text-secondary">Today • Oct 24</span><span class="font-label-caps text-label-caps text-outline">5 Logs</span></div>
+            <article class="event-card group relative p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex items-start gap-3 transition-transform active:scale-[0.99]" data-category="unlock" data-door="front">
+              <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-on-surface"><span class="material-symbols-outlined text-[20px]">face</span></div>
+              <div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-1"><h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Nguyen Van A</h3><span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">Unlocked</span></div><p class="font-body-sm text-body-sm text-secondary truncate mt-0.5">Front Door • Facial Recognition</p><div class="flex items-center gap-2 mt-2"><span class="font-label-caps text-label-caps text-outline">10:32 AM</span><span class="text-outline text-[8px]">•</span><span class="font-label-caps text-label-caps text-secondary">14m ago</span></div></div>
+            </article>
+            <article class="event-card relative p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex items-start gap-3 transition-transform active:scale-[0.99]" data-category="alerts" data-door="back">
+              <div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center flex-shrink-0 text-on-secondary-fixed"><span class="material-symbols-outlined text-[20px]">door_open</span></div>
+              <div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-1"><h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Auto-Lock Paused</h3><span class="px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-caps text-label-caps">Warning</span></div><p class="font-body-sm text-body-sm text-secondary truncate mt-0.5">Back Door held open for 4m</p><div class="flex items-center gap-2 mt-2"><span class="font-label-caps text-label-caps text-outline">09:48 AM</span><span class="text-outline text-[8px]">•</span><span class="font-label-caps text-label-caps text-secondary">Sensor Triggered</span></div></div>
+            </article>
+            <article class="event-card relative p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col gap-3 transition-transform active:scale-[0.99]" data-category="alerts" data-door="front">
+              <div class="flex items-start gap-3"><div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0 text-error"><span class="material-symbols-outlined text-[20px]">no_accounts</span></div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-1"><h3 class="font-headline-sm text-headline-sm text-error truncate">Unknown Face</h3><span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-caps text-label-caps">Denied</span></div><p class="font-body-sm text-body-sm text-secondary truncate mt-0.5">3 failed biometric attempts at Front Door</p><div class="flex items-center gap-2 mt-1"><span class="font-label-caps text-label-caps text-outline">09:12 AM</span><span class="text-outline text-[8px]">•</span><span class="font-label-caps text-label-caps text-error">Perimeter Flag</span></div></div></div>
+              <div class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low mt-1"><div class="flex items-center gap-2.5"><div class="w-11 h-11 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant"><img class="w-full h-full object-cover" alt="Security camera snapshot of the front porch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDz0M8NJ0FIyoMbKo3E6IZesNlOqJalvPIHGTtSA1oqsiMUCZnT2qfdtfdgaXGnxIbsIlxA5vRCvqiDid6jHdPNc8bRhSU9wcOUxPS9EEQXNLZfLTTAeCGIhCOfeqMUMJ_JUNNTnPYmXp7XoWUTUoBuLVyTe3DwN8R5FT7eFZmniynINdip6r3LicZuSvcyLbKvTj86m5WP-LOpog1_LcGC6iYdlbB4cA0tsDBYS6nweSIp1HJwtB2JYA"></div><div class="flex flex-col"><span class="font-label-md text-label-md text-on-surface">Snapshot Recorded</span><span class="font-label-caps text-label-caps text-secondary">HD Lens 1080p • Cam 01</span></div></div><button class="snapshot-review px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1 active:scale-95 transition-transform" type="button"><span class="material-symbols-outlined text-[15px]">visibility</span><span>Review</span></button></div>
+            </article>
+            <article class="event-card relative p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex items-start gap-3 transition-transform active:scale-[0.99]" data-category="unlock" data-door="garage">
+              <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-on-surface"><span class="material-symbols-outlined text-[20px]">pin</span></div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-1"><h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Nguyen Van A</h3><span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">Unlocked</span></div><p class="font-body-sm text-body-sm text-secondary truncate mt-0.5">Garage Entry • Master PIN Keypad</p><div class="flex items-center gap-2 mt-2"><span class="font-label-caps text-label-caps text-outline">08:30 AM</span><span class="text-outline text-[8px]">•</span><span class="font-label-caps text-label-caps text-secondary">Pin #1 (Permanent)</span></div></div>
+            </article>
+            <article class="event-card relative p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex items-start gap-3 transition-transform active:scale-[0.99]" data-category="lock" data-door="front">
+              <div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center flex-shrink-0 text-secondary"><span class="material-symbols-outlined text-[20px]">lock</span></div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-1"><h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Perimeter Master</h3><span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-caps text-label-caps">Secured</span></div><p class="font-body-sm text-body-sm text-secondary truncate mt-0.5">Front Door • Auto-Lock schedule</p><div class="flex items-center gap-2 mt-2"><span class="font-label-caps text-label-caps text-outline">08:15 AM</span><span class="text-outline text-[8px]">•</span><span class="font-label-caps text-label-caps text-secondary">Scheduled Protocol</span></div></div>
+            </article>
+          </div>
+
+          <div class="flex flex-col space-y-2.5">
+            <div class="flex items-center justify-between px-1"><span class="font-label-caps text-label-caps uppercase tracking-wider text-secondary">Yesterday • Oct 23</span><span class="font-label-caps text-label-caps text-outline">3 Logs</span></div>
+            <article class="event-card relative p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex items-start gap-3 transition-transform active:scale-[0.99]" data-category="unlock" data-door="front"><div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-on-surface"><span class="material-symbols-outlined text-[20px]">contactless</span></div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-1"><h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Nguyen Van B</h3><span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">Unlocked</span></div><p class="font-body-sm text-body-sm text-secondary truncate mt-0.5">Front Door • NFC Keycard #04</p><div class="flex items-center gap-2 mt-2"><span class="font-label-caps text-label-caps text-outline">19:45 PM</span><span class="text-outline text-[8px]">•</span><span class="font-label-caps text-label-caps text-secondary">Family Card</span></div></div></article>
+            <article class="event-card relative p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex items-start gap-3 transition-transform active:scale-[0.99]" data-category="lock" data-door="back"><div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-secondary"><span class="material-symbols-outlined text-[20px]">smartphone</span></div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-1"><h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Back Door</h3><span class="px-2 py-0.5 rounded-full bg-surface-container text-on-surface font-label-caps text-label-caps">Secured</span></div><p class="font-body-sm text-body-sm text-secondary truncate mt-0.5">Locked remotely via iOS App</p><div class="flex items-center gap-2 mt-2"><span class="font-label-caps text-label-caps text-outline">18:20 PM</span><span class="text-outline text-[8px]">•</span><span class="font-label-caps text-label-caps text-secondary">Mobile Actuator</span></div></div></article>
+            <article class="event-card relative p-3.5 rounded-xl bg-surface-container-lowest shadow-sm flex items-start gap-3 transition-transform active:scale-[0.99]" data-category="unlock" data-door="garage"><div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0 text-on-surface"><span class="material-symbols-outlined text-[20px]">pin</span></div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-1"><h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Garage Entry</h3><span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">Unlocked</span></div><p class="font-body-sm text-body-sm text-secondary truncate mt-0.5">PIN Keypad entry • Guest Pass</p><div class="flex items-center gap-2 mt-2"><span class="font-label-caps text-label-caps text-outline">07:15 AM</span><span class="text-outline text-[8px]">•</span><span class="font-label-caps text-label-caps text-secondary">One-time Code #992</span></div></div></article>
+          </div>
+        </section>
+
+        <section class="hidden flex-col items-center justify-center p-8 text-center rounded-xl bg-surface-container-lowest shadow-sm space-y-2" id="noEventsState" aria-live="polite">
+          <div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-secondary"><span class="material-symbols-outlined text-[24px]">search_off</span></div>
+          <p class="font-headline-sm text-headline-sm text-on-surface">No Activity Found</p>
+          <p class="font-body-sm text-body-sm text-secondary">No recorded events match the selected door filter.</p>
+        </section>
+        <div class="pt-2 flex justify-center"><button class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-surface-container-lowest text-secondary font-label-md text-label-md shadow-sm active:scale-95 transition-all hover:text-on-surface" id="exportActivity" type="button"><span class="material-symbols-outlined text-[16px]">file_download</span><span>Export 30-Day Audit (.CSV)</span></button></div>
+      </div>
+      <script src="js/tab-transition.js"></script>
+      <script src="js/activity.js"></script>
+    </main>
+
+    <nav class="fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/85 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.03)]" data-active-classes="text-primary font-semibold">
+      <div class="flex justify-around items-center h-16 px-space-sm">
+        <a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors" data-path="home" href="home.html"><span class="material-symbols-outlined text-[24px]">home</span><span class="font-label-md text-label-md">Home</span></a>
+        <a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 transition-colors text-primary font-semibold" data-path="activity" href="#activity"><span class="material-symbols-outlined text-[24px]">history</span><span class="font-label-md text-label-md">Activity</span></a>
+        <a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors" data-path="settings" href="settings.html"><span class="material-symbols-outlined text-[24px]">settings</span><span class="font-label-md text-label-md">Settings</span></a>
+      </div>
+    </nav>
+  </body>
+</html>
