@@ -1,0 +1,13 @@
+.activity-page {
+  min-height: max(884px, 100dvh);
+}
+
+#activityTimeline {
+  scroll-margin-top: 5rem;
+}
+
+.filter-chip:focus-visible,
+.snapshot-review:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
