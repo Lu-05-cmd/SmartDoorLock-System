@@ -1,0 +1,8 @@
+Material Symbols Outlined
+
+Source: https://github.com/google/material-design-icons
+License: Apache License 2.0; see LICENSE.txt.
+
+material-symbols-outlined.woff2 is a locally generated subset of the variable
+font, containing the glyphs used by this app. The original glyph names and
+ligature mappings are preserved.
