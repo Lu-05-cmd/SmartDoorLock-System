@@ -1,0 +1,295 @@
+body {
+  min-height: 100dvh;
+}
+
+.access-page {
+  width: min(100%, 32rem);
+  min-height: 100dvh;
+  margin: 0 auto;
+}
+
+.face-id-access-overlay [data-purpose="face-id-authorization-overlay"] > div {
+  border-color: var(--color-border) !important;
+  background-color: var(--color-surface-elevated) !important;
+  color: var(--color-text-primary);
+}
+
+.face-id-access-overlay [data-purpose="face-id-authorization-overlay"] > div > .w-10 {
+  background-color: var(--color-surface-strong) !important;
+}
+
+.face-id-access-overlay .bg-blue-50 {
+  background-color: var(--color-info-soft) !important;
+}
+
+.face-id-access-overlay [class~="bg-blue-50/40"] {
+  background-color: var(--color-info-soft) !important;
+}
+
+.face-id-access-overlay [class~="bg-blue-50/60"] {
+  background-color: var(--color-primary-soft) !important;
+}
+
+.face-id-access-overlay .bg-white {
+  background-color: var(--color-surface-elevated) !important;
+}
+
+.face-id-access-overlay .bg-slate-50 {
+  background-color: var(--color-surface-muted) !important;
+}
+
+.face-id-access-overlay .bg-slate-100 {
+  background-color: var(--color-surface) !important;
+}
+
+.face-id-access-overlay .bg-slate-200 {
+  background-color: var(--color-surface-strong) !important;
+}
+
+.face-id-access-overlay .bg-slate-900 {
+  background-color: var(--color-primary) !important;
+}
+
+.face-id-access-overlay .border-blue-100,
+.face-id-access-overlay [class~="border-blue-200/60"] {
+  border-color: var(--color-border) !important;
+}
+
+.face-id-access-overlay .text-blue-600 {
+  color: var(--color-info) !important;
+}
+
+.face-id-access-overlay .text-blue-700 {
+  color: var(--color-info) !important;
+}
+
+.face-id-access-overlay .bg-blue-600 {
+  background-color: var(--color-info) !important;
+}
+
+.face-id-access-overlay .border-blue-600 {
+  border-color: var(--color-info) !important;
+}
+
+.face-id-access-overlay .text-slate-500 {
+  color: var(--color-text-secondary) !important;
+}
+
+.face-id-access-overlay .text-slate-600,
+.face-id-access-overlay .text-slate-700 {
+  color: var(--color-text-primary) !important;
+}
+
+.face-id-access-overlay button.bg-slate-900 {
+  border: 1px solid var(--color-lock) !important;
+  color: var(--color-surface-elevated) !important;
+  background-color: var(--color-lock) !important;
+  box-shadow: 0 3px 8px rgb(22 122 115 / 22%);
+}
+
+.face-id-access-overlay button.bg-slate-900:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+
+.face-id-access-overlay button.bg-slate-900:disabled {
+  border-color: var(--color-primary-disabled) !important;
+  color: var(--color-text-secondary) !important;
+  background-color: var(--color-surface) !important;
+  box-shadow: none;
+  opacity: 1;
+}
+
+.face-id-access-overlay button.bg-slate-100 {
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-surface) !important;
+}
+
+.face-id-access-overlay button.bg-slate-100:hover {
+  filter: brightness(0.98);
+}
+
+.face-id-access-overlay button.border-dashed {
+  border-color: var(--color-border-strong) !important;
+  color: var(--color-info) !important;
+  background-color: var(--color-info-soft) !important;
+}
+
+.face-id-access-overlay button.border-dashed:hover {
+  filter: brightness(0.98);
+}
+
+.face-id-access-overlay .grid.grid-cols-3 > div {
+  border-color: var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-surface) !important;
+}
+
+.face-id-access-overlay .grid.grid-cols-3 > div:first-child {
+  border-color: var(--color-lock) !important;
+  color: var(--color-surface-elevated) !important;
+  background-color: var(--color-lock) !important;
+}
+
+html.dark .face-id-access-overlay [class~="bg-blue-50/40"],
+html.dark .face-id-access-overlay [class~="bg-blue-50/60"],
+html.dark .face-id-access-overlay .bg-blue-50 {
+  background-color: var(--color-info-soft) !important;
+}
+
+html.dark .face-id-access-overlay [data-purpose="face-id-authorization-overlay"] > div {
+  border-color: var(--color-border) !important;
+  background-color: var(--color-surface-elevated) !important;
+  color: var(--color-text-primary);
+}
+
+html.dark .face-id-access-overlay [data-purpose="face-id-authorization-overlay"] > div > .w-10 {
+  background-color: var(--color-surface-strong) !important;
+}
+
+html.dark .face-id-access-overlay .bg-white {
+  background-color: var(--color-surface-elevated) !important;
+}
+
+html.dark .face-id-access-overlay .bg-slate-50,
+html.dark .face-id-access-overlay .bg-slate-100 {
+  background-color: var(--color-surface) !important;
+}
+
+html.dark .face-id-access-overlay .bg-slate-200 {
+  background-color: var(--color-surface-strong) !important;
+}
+
+html.dark .face-id-access-overlay .bg-slate-900 {
+  background-color: var(--color-primary) !important;
+}
+
+html.dark .face-id-access-overlay .text-slate-900,
+html.dark .face-id-access-overlay .text-slate-700,
+html.dark .face-id-access-overlay .text-slate-600,
+html.dark .face-id-access-overlay .text-slate-500 {
+  color: var(--color-text-primary) !important;
+}
+
+html.dark .face-id-access-overlay .bg-slate-900.text-white,
+html.dark .face-id-access-overlay .bg-slate-900 .text-white {
+  color: var(--color-app-bg) !important;
+}
+
+html.dark .face-id-access-overlay .border-slate-200,
+html.dark .face-id-access-overlay [class~="border-slate-200/80"],
+html.dark .face-id-access-overlay [class~="border-slate-200/90"],
+html.dark .face-id-access-overlay .border-slate-300 {
+  border-color: var(--color-border) !important;
+}
+
+html.dark .face-id-access-overlay .bg-blue-50,
+html.dark .face-id-access-overlay [class~="bg-blue-50/40"],
+html.dark .face-id-access-overlay [class~="bg-blue-50/60"] {
+  background-color: var(--color-info-soft) !important;
+}
+
+html.dark .face-id-access-overlay .border-blue-100,
+html.dark .face-id-access-overlay [class~="border-blue-200/60"],
+html.dark .face-id-access-overlay .border-blue-400,
+html.dark .face-id-access-overlay .border-blue-600 {
+  border-color: var(--color-border-strong) !important;
+}
+
+html.dark .face-id-access-overlay .text-blue-600,
+html.dark .face-id-access-overlay .text-blue-700 {
+  color: var(--color-info) !important;
+}
+
+html.dark #add-door-dialog .face-id-access-overlay button.bg-slate-900:not(:disabled),
+html.dark .face-id-access-overlay button.bg-slate-900:not(:disabled) {
+  border-color: var(--color-lock) !important;
+  color: var(--color-app-bg) !important;
+  background-color: var(--color-lock) !important;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 28%);
+}
+
+html.dark #add-door-dialog .face-id-access-overlay button.bg-slate-900:hover:not(:disabled),
+html.dark .face-id-access-overlay button.bg-slate-900:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+html.dark #add-door-dialog .face-id-access-overlay button.bg-slate-900:disabled,
+html.dark .face-id-access-overlay button.bg-slate-900:disabled {
+  border-color: var(--color-border-strong) !important;
+  color: var(--color-text-secondary) !important;
+  background-color: var(--color-surface) !important;
+  box-shadow: none;
+  opacity: 1;
+}
+
+html.dark #add-door-dialog .face-id-access-overlay button.bg-slate-100,
+html.dark .face-id-access-overlay button.bg-slate-100 {
+  border-color: var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-surface) !important;
+}
+
+html.dark #add-door-dialog .face-id-access-overlay button.bg-slate-100:hover,
+html.dark .face-id-access-overlay button.bg-slate-100:hover {
+  filter: brightness(0.98);
+}
+
+html.dark .face-id-access-overlay button.border-dashed {
+  border-color: var(--color-border-strong) !important;
+  color: var(--color-lock) !important;
+  background-color: var(--color-info-soft) !important;
+}
+
+html.dark .face-id-access-overlay button.border-dashed:hover {
+  filter: brightness(0.98);
+}
+
+html.dark #add-door-dialog .face-id-access-overlay .grid.grid-cols-3 > div,
+html.dark .face-id-access-overlay .grid.grid-cols-3 > div {
+  border-color: var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-surface) !important;
+}
+
+html.dark #add-door-dialog .face-id-access-overlay .grid.grid-cols-3 > div:first-child,
+html.dark .face-id-access-overlay .grid.grid-cols-3 > div:first-child {
+  border-color: var(--color-lock) !important;
+  color: var(--color-app-bg) !important;
+  background-color: var(--color-lock) !important;
+}
+
+.face-id-access-overlay .text-xs {
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+
+.face-id-access-overlay [class~="text-[11px]"],
+.face-id-access-overlay [class~="text-[10px]"] {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+
+.member-option.is-selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+html.dark .member-option.is-selected {
+  border-color: #7899cc;
+  background: #243b5a;
+  box-shadow: 0 0 0 1px #7899cc;
+}
+
+.permission-option[aria-pressed="true"] {
+  border-color: #131b2e;
+  color: #fff;
+  background: #131b2e;
+}
+
+html.dark .permission-option[aria-pressed="true"] {
+  border-color: #a9c5ff;
+  color: #101721;
+  background: #a9c5ff;
+}
