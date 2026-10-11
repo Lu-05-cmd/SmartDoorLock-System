@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+    <meta content="mobile_tab" name="shell-type">
+    <script src="js/i18n.js?v=responsive-phone-type-2"></script>
+    <script src="js/api-client.js?v=face-sync-3"></script>
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+
+      :root {
+        --shell-app-bg: #e9ebf9;
+        --shell-text-primary: #0b1c30;
+        --shell-surface-elevated: #ffffff;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        background-color: var(--shell-app-bg);
+        color: var(--shell-text-primary);
+      }
+
+      html.dark {
+        --shell-app-bg: #101721;
+        --shell-text-primary: #e7edf6;
+        background-color: var(--shell-app-bg);
+      }
+
+      html.dark,
+      html.dark body {
+        background-color: var(--shell-app-bg);
+        color: var(--shell-text-primary);
+      }
+
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 140ms;
+        animation-timing-function: ease-out;
+      }
+
+      html.startup-settings body > .app-page-content,
+      html.startup-settings body > nav {
+        visibility: hidden;
+      }
+    </style>
+    <script>
+      if (window.location.hash === '#settings') {
+        document.documentElement.classList.add('startup-settings');
+      }
+    </script>
+    <script>
+      try {
+        if (localStorage.getItem('face-door-theme') !== 'light') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (error) {}
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js?v=responsive-phone-type-2"></script>
+    <link href="css/styles.css?v=mobile-tab-transition-1" rel="stylesheet">
+    <link href="css/faces.css?v=1" rel="stylesheet">
+    <link href="css/activity.css" rel="stylesheet">
+    <link href="css/settings.css?v=sheet-exit-animations-1" rel="stylesheet">
+    <link href="css/face-id-access.css?v=face-access-type-1" rel="stylesheet">
+  </head>
+  <body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen">
+    <main class="app-page-content flex-1 flex flex-col relative w-full pt-4 pb-24 bg-surface px-space-md">
+      <div class="flex flex-col w-full gap-space-md">
+        <section class="home-greeting page-sticky-heading" aria-labelledby="home-greeting-title">
+          <p class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Perimeter Online</p>
+          <h1 id="home-greeting-title">Xin chào, <span id="home-greeting-name">bạn</span></h1>
+        </section>
+        <!-- Top Section: Master Control Card -->
+        <section class="w-full bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-space-xs">
+              <span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">House Overview</span>
+              <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+              <span class="font-label-caps text-label-caps text-on-surface-variant font-medium">Zone A</span>
+            </div>
+            <div class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed text-label-md font-label-md flex items-center gap-1" id="overview-badge">
+              <span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+              <span id="overview-status-text">No locks added</span>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-md pt-1">
+            <div>
+              <h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">Perimeter Master</h2>
+              <p class="font-body-sm text-body-sm text-secondary mt-0.5">Dual-band Thread network active across all entry points.</p>
+            </div>
+            <button class="w-full sm:w-auto h-12 px-space-lg bg-primary text-on-primary rounded-lg font-label-lg text-label-lg flex items-center justify-center gap-2 active:scale-[0.985] transition-all shadow-sm hover:bg-inverse-surface" disabled id="lock-all-btn" type="button">
+              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">lock</span>
+              <span>Lock All Doors</span>
+            </button>
+          </div>
+          <!-- Quick Telemetry Row -->
+          <div class="grid grid-cols-3 gap-space-sm pt-2">
+            <div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-0.5">
+              <div class="flex items-center gap-1 text-secondary">
+                <span class="material-symbols-outlined text-[16px]">device_hub</span>
+                <span class="font-label-caps text-label-caps uppercase">Nodes</span>
+              </div>
+              <span class="home-telemetry-value font-headline-sm text-headline-sm text-on-surface" id="lock-count">0 Locks</span>
+            </div>
+            <div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-0.5">
+              <div class="flex items-center gap-1 text-secondary">
+                <span class="material-symbols-outlined text-[16px]">sync</span>
+                <span class="font-label-caps text-label-caps uppercase">Thread</span>
+              </div>
+              <span class="home-telemetry-value font-headline-sm text-headline-sm text-on-surface">Mesh OK</span>
+            </div>
+            <div class="bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-0.5">
+              <div class="flex items-center gap-1 text-secondary">
+                <span class="material-symbols-outlined text-[16px]">battery_charging_full</span>
+                <span class="font-label-caps text-label-caps uppercase">Power</span>
+              </div>
+              <span class="home-telemetry-value font-headline-sm text-headline-sm text-on-surface">Healthy</span>
+            </div>
+          </div>
+        </section>
+        <!-- Door List Section -->
+        <section class="flex flex-col gap-space-sm">
+          <div class="flex items-center justify-between px-1">
+            <div class="flex items-baseline gap-space-xs">
+              <h3 class="font-headline-sm text-headline-sm text-on-surface">Doors</h3>
+              <span class="font-label-md text-label-md text-secondary" id="door-count">(0)</span>
+            </div>
+            <div class="flex items-center gap-space-xs">
+              <button aria-label="Sort options" class="h-8 px-2.5 rounded-lg bg-surface-container-lowest text-secondary font-label-md text-label-md flex items-center gap-1 hover:text-on-surface transition-colors shadow-sm" type="button">
+                <span class="material-symbols-outlined text-[16px]">sort</span>
+                <span>Status</span>
+              </button>
+              <button aria-label="Add new door lock" class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center active:scale-95 transition-all" id="add-door-btn" type="button">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+              </button>
+            </div>
+          </div>
+          <p class="hidden text-error font-body-sm text-body-sm" id="add-door-load-error" role="status"></p>
+          <div class="flex flex-col gap-space-sm" id="door-list">
+            <button class="w-full min-h-32 rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-lowest flex flex-col items-center justify-center gap-2 text-secondary shadow-sm transition-colors hover:text-primary" id="empty-lock-state" type="button">
+              <span class="material-symbols-outlined text-[32px]">add_circle</span>
+              <span class="font-label-lg text-label-lg font-semibold">Add your first lock</span>
+              <span class="font-body-sm text-body-sm">Tap to configure a new door device</span>
+            </button>
+          </div>
+          <template>
+          <!-- Previous example cards, no longer shown as registered locks. -->
+          <!-- Door 1: Front Door -->
+          <article class="door-card bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm transition-all" data-locked="true" data-name="Front Door" id="door-card-front">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-space-sm">
+                <div class="status-icon-wrapper w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface transition-colors">
+                  <span class="material-symbols-outlined text-[24px] door-icon" style="font-variation-settings: 'FILL' 1;">lock</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h4 class="font-headline-sm text-headline-sm text-on-surface">Front Door</h4>
+                    <span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Master</span>
+                  </div>
+                  <p class="font-body-sm text-body-sm text-secondary flex items-center gap-1 mt-0.5">
+                    <span>Main Entryway</span>
+                    <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                    <span class="text-on-surface font-medium">88%</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">wifi</span>
+                  </p>
+                </div>
+              </div>
+              <span class="status-badge px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                <span class="badge-text">Secured</span>
+              </span>
+            </div>
+            <!-- Authentication Methods Active -->
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center gap-2">
+                <span class="font-label-caps text-label-caps text-secondary uppercase">Access</span>
+                <div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-md">
+                  <span class="material-symbols-outlined text-[16px] text-on-surface" title="Keypad Active">dialpad</span>
+                  <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                  <span class="material-symbols-outlined text-[16px] text-on-surface" title="RFID Card Active">contactless</span>
+                </div>
+              </div>
+              <!-- Action Toggle Button -->
+              <button class="door-toggle-btn h-9 px-4 rounded-lg bg-surface-container text-on-surface font-label-lg text-label-lg active:scale-95 transition-all flex items-center gap-1.5" type="button">
+                <span class="material-symbols-outlined text-[18px]">lock_open</span>
+                <span class="toggle-text">Unlock</span>
+              </button>
+            </div>
+            <!-- Activity Snippet -->
+            <div class="mt-1 pt-2 bg-surface-container-low/60 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="material-symbols-outlined text-[15px] text-secondary">history</span>
+                <span class="activity-text font-body-sm text-body-sm text-secondary truncate">Nguyen Van A unlocked at 10:32 AM via keypad</span>
+              </div>
+              <span class="font-label-caps text-label-caps text-secondary shrink-0">14m ago</span>
+            </div>
+          </article>
+          <!-- Door 2: Back Door -->
+          <article class="door-card bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm transition-all" data-locked="false" data-name="Back Door" id="door-card-back">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-space-sm">
+                <div class="status-icon-wrapper unlocked-state-icon w-11 h-11 rounded-lg flex items-center justify-center transition-colors">
+                  <span class="material-symbols-outlined text-[24px] door-icon">lock_open</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h4 class="font-headline-sm text-headline-sm text-on-surface">Back Door</h4>
+                    <span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Patio</span>
+                  </div>
+                  <p class="font-body-sm text-body-sm text-secondary flex items-center gap-1 mt-0.5">
+                    <span>Garden Access</span>
+                    <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                    <span class="text-on-surface font-medium">92%</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">wifi</span>
+                  </p>
+                </div>
+              </div>
+              <span class="status-badge unlocked-state-badge px-2.5 py-1 rounded-full font-label-md text-label-md flex items-center gap-1.5">
+                <span class="unlocked-state-dot w-1.5 h-1.5 rounded-full animate-pulse"></span>
+                <span class="badge-text">Unlocked</span>
+              </span>
+            </div>
+            <!-- Authentication Methods Active -->
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center gap-2">
+                <span class="font-label-caps text-label-caps text-secondary uppercase">Access</span>
+                <div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-md">
+                  <span class="material-symbols-outlined text-[16px] text-on-surface" title="Keypad Active">dialpad</span>
+                  <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                  <span class="material-symbols-outlined text-[16px] text-on-surface" title="RFID Card Active">contactless</span>
+                </div>
+              </div>
+              <!-- Action Toggle Button (Highlighted because it needs attention) -->
+              <button class="door-toggle-btn h-9 px-4 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg active:scale-95 transition-all flex items-center gap-1.5 shadow-sm" type="button">
+                <span class="material-symbols-outlined text-[18px]">lock</span>
+                <span class="toggle-text">Lock</span>
+              </button>
+            </div>
+            <!-- Activity Snippet -->
+            <div class="mt-1 pt-2 bg-surface-container-low/60 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="material-symbols-outlined text-[15px] text-secondary">lock_clock</span>
+                <span class="activity-text font-body-sm text-body-sm text-secondary truncate">Auto-lock paused • Opened 4m ago</span>
+              </div>
+              <span class="font-label-caps text-label-caps text-secondary shrink-0">Now</span>
+            </div>
+          </article>
+          <!-- Door 3: Garage Entry -->
+          <article class="door-card bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm transition-all" data-locked="true" data-name="Garage Entry" id="door-card-garage">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-space-sm">
+                <div class="status-icon-wrapper w-11 h-11 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface transition-colors">
+                  <span class="material-symbols-outlined text-[24px] door-icon" style="font-variation-settings: 'FILL' 1;">lock</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h4 class="font-headline-sm text-headline-sm text-on-surface">Garage Entry</h4>
+                    <span class="font-label-caps text-label-caps px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant">Interior</span>
+                  </div>
+                  <p class="font-body-sm text-body-sm text-secondary flex items-center gap-1 mt-0.5">
+                    <span>Breezeway Link</span>
+                    <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                    <span class="text-on-surface font-medium">76%</span>
+                    <span class="material-symbols-outlined text-[14px] text-secondary">wifi</span>
+                  </p>
+                </div>
+              </div>
+              <span class="status-badge px-2.5 py-1 rounded-full bg-surface-container text-on-surface font-label-md text-label-md flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                <span class="badge-text">Secured</span>
+              </span>
+            </div>
+            <!-- Authentication Methods Active -->
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center gap-2">
+                <span class="font-label-caps text-label-caps text-secondary uppercase">Access</span>
+                <div class="flex items-center gap-1.5 bg-surface-container-low px-2 py-1 rounded-md">
+                  <span class="material-symbols-outlined text-[16px] text-on-surface" title="Keypad Active">dialpad</span>
+                  <span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+                  <span class="material-symbols-outlined text-[16px] text-on-surface" title="RFID Card Active">contactless</span>
+                </div>
+              </div>
+              <!-- Action Toggle Button -->
+              <button class="door-toggle-btn h-9 px-4 rounded-lg bg-surface-container text-on-surface font-label-lg text-label-lg active:scale-95 transition-all flex items-center gap-1.5" type="button">
+                <span class="material-symbols-outlined text-[18px]">lock_open</span>
+                <span class="toggle-text">Unlock</span>
+              </button>
+            </div>
+            <!-- Activity Snippet -->
+            <div class="mt-1 pt-2 bg-surface-container-low/60 rounded-lg px-2.5 py-1.5 flex items-center justify-between">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="material-symbols-outlined text-[15px] text-secondary">schedule</span>
+                <span class="activity-text font-body-sm text-body-sm text-secondary truncate">Locked automatically at 08:30 AM</span>
+              </div>
+              <span class="font-label-caps text-label-caps text-secondary shrink-0">2h ago</span>
+            </div>
+          </article>
+          </template>
+        </section>
+        <!-- Quick Safety / Automation Banner -->
+        <aside class="w-full bg-surface-container rounded-xl p-space-md flex items-center gap-space-sm">
+          <div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-sm shrink-0">
+            <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">security_update_good</span>
+          </div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-1.5">
+              <h5 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">Auto-Lock Perimeter Armed</h5>
+              <span class="w-1.5 h-1.5 rounded-full bg-primary shrink-0"></span>
+            </div>
+            <p class="font-body-sm text-body-sm text-secondary leading-snug truncate">
+                All exterior doors automatically lock after 30s of inactivity.
+            </p>
+          </div>
+        </aside>
+      </div>
+      <dialog aria-describedby="delete-confirm-description" aria-labelledby="delete-confirm-title" class="delete-confirm-dialog" id="delete-confirm-dialog">
+        <div class="flex flex-col items-center text-center p-6">
+          <div class="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 text-[#dc2626]">
+            <span aria-hidden="true" class="material-symbols-outlined text-[28px]">delete</span>
+          </div>
+          <h2 class="text-lg font-bold text-white mb-2" id="delete-confirm-title">Permanently delete this lock?</h2>
+          <p class="text-sm text-slate-400 leading-relaxed mb-6" id="delete-confirm-description">
+            <span>This will permanently remove</span>
+            <strong class="text-slate-200 font-semibold" data-language-ignore id="delete-confirm-name"></strong>
+            <span>from this device. This action cannot be undone.</span>
+          </p>
+          <p class="hidden text-sm text-red-400 mb-4" id="delete-confirm-error" role="alert"></p>
+          <div class="w-full grid grid-cols-2 gap-3">
+            <button class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-semibold text-sm border border-slate-700/60 transition" id="cancel-lock-delete" type="button">Cancel</button>
+            <button class="w-full py-2.5 px-4 rounded-xl bg-[#dc2626] hover:bg-red-700 active:bg-red-800 active:scale-95 text-white font-semibold text-sm transition flex items-center justify-center gap-1.5" id="confirm-lock-delete" type="button">
+              <span aria-hidden="true" class="material-symbols-outlined text-[18px]">delete</span>
+              <span>Delete permanently</span>
+            </button>
+          </div>
+        </div>
+      </dialog>
+      <script src="js/face-id-access.js?v=face-access-overlay-1"></script>
+      <script src="js/pin-crypto.js?v=lan-pin-fallback-2"></script>
+      <script src="js/app.js?v=sheet-exit-animations-1"></script>
+    </main>
+    <nav class="app-bottom-nav fixed bottom-0 inset-x-0 z-50 pb-safe bg-surface/85 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.03)]" data-active-classes="text-primary font-semibold">
+      <div class="app-bottom-nav-items relative flex justify-around items-center h-16 px-space-sm">
+        <span class="app-bottom-nav-indicator" aria-hidden="true"></span>
+        <a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 transition-colors text-primary font-semibold" data-path="home" href="#home">
+          <span class="material-symbols-outlined text-[24px]">home</span>
+          <span class="font-label-md text-label-md">Home</span>
+        </a>
+        <a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors" data-path="faces" href="#faces">
+          <span class="material-symbols-outlined text-[24px]">face</span>
+          <span class="font-label-md text-label-md">Face ID</span>
+        </a>
+        <a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors" data-path="activity" href="#activity">
+          <span class="material-symbols-outlined text-[24px]">history</span>
+          <span class="font-label-md text-label-md">Activity</span>
+        </a>
+        <a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] gap-0.5 text-on-surface-variant transition-colors" data-path="settings" href="#settings">
+          <span class="material-symbols-outlined text-[24px]">tune</span>
+          <span class="font-label-md text-label-md">Settings</span>
+        </a>
+      </div>
+    </nav>
+    <script src="js/activity.js"></script>
+    <script src="js/settings.js?v=connect-2"></script>
+    <script src="js/faces-page.js?v=2"></script>
+    <script src="js/device-biometric.js?v=platform-passkey-3"></script>
+    <script src="js/faces.js?v=face-device-scan-1"></script>
+    <script src="js/tab-transition.js?v=mobile-tab-transition-1"></script>
+  </body>
+</html>
