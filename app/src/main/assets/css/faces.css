@@ -1,0 +1,30 @@
+@layer base {
+  body.faces-page {
+    width: 100vw;
+    min-height: max(884px, 100dvh);
+    margin: 0;
+    padding: 0;
+    overscroll-behavior: none;
+  }
+
+  body.faces-page .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  body.faces-page .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  body.faces-page main > :first-child {
+    margin-top: 0 !important;
+  }
+
+  body.faces-page main > :last-child {
+    margin-bottom: 0 !important;
+  }
+}
+
+body.faces-page::-webkit-scrollbar,
+body.faces-page *::-webkit-scrollbar {
+  display: none;
+}
