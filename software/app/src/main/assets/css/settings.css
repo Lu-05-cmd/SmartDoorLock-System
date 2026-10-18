@@ -576,6 +576,10 @@ html.dark #add-door-dialog .bg-slate-200 {
   gap: 15px;
 }
 
+section[aria-labelledby="content-preferences-title"] .setting-row {
+  padding-block: 10px;
+}
+
 .section-heading,
 .setting-row,
 .setting-main,
