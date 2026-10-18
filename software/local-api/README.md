@@ -19,10 +19,10 @@ From the repository root, create a random token with at least 24 characters and 
 ```powershell
 $token = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
 $env:SMARTDOOR_API_TOKEN = $token
-python tools/local-api/server.py
+python software/local-api/server.py
 ```
 
-The server binds to `0.0.0.0:8766` for connections from devices on the LAN. SQLite is created at `tools/local-api/smartdoor.sqlite3` by default and is ignored by Git. Set `SMARTDOOR_DATABASE` to choose another path. Restrict access to the port with Windows Firewall to the trusted Private network profile.
+The server binds to `0.0.0.0:8766` for connections from devices on the LAN. SQLite is created at `software/local-api/smartdoor.sqlite3` by default and is ignored by Git. Set `SMARTDOOR_DATABASE` to choose another path. Restrict access to the port with Windows Firewall to the trusted Private network profile.
 
 Find the computer's Wi-Fi IPv4 address with `ipconfig`, for example `192.168.1.20`.
 
@@ -104,7 +104,7 @@ Returns the registered devices and the ten newest event metadata records. `GET /
 ## Verify locally
 
 ```powershell
-python -m unittest discover -s tools/local-api -v
+python -m unittest discover -s software/local-api -v
 ```
 
 These integration tests use a temporary SQLite database and an ephemeral loopback server; they do not contact hardware or the LAN.

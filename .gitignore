@@ -7,9 +7,9 @@ face_test_data/
 
 # Local Wi-Fi credentials; commit only the example template.
 hardware/esp32-camera/include/secrets.h
-tools/local-api/smartdoor.sqlite3
-tools/local-api/smartdoor.sqlite3-shm
-tools/local-api/smartdoor.sqlite3-wal
+software/local-api/smartdoor.sqlite3
+software/local-api/smartdoor.sqlite3-shm
+software/local-api/smartdoor.sqlite3-wal
 
 # Android build output and machine-local SDK configuration.
 **/.gradle/
