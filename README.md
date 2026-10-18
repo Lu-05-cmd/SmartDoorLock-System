@@ -1,235 +1,87 @@
-﻿# SmartDoorLock System
+# SmartDoorLock System
 
-Dự án khóa cửa thông minh sử dụng nhận diện khuôn mặt trên ESP32-CAM, tích hợp với ứng dụng Android/WebView và API nội bộ để quản lý thiết bị và sự kiện trong mạng LAN.
+Dự án prototype khóa cửa thông minh gồm firmware nhận diện khuôn mặt, ứng dụng Android/WebView và local API chạy trong mạng LAN.
 
 ## Tổng quan
 
-SmartDoorLock System là một dự án cá nhân nhằm thử nghiệm giải pháp khóa cửa thông minh với các thành phần chính:
+- **ESP32 DevKit + OV2640:** nhận diện khuôn mặt và điều khiển relay trên thiết bị; gửi heartbeat và metadata sự kiện tới local API.
+- **Ứng dụng Android/WebView:** dashboard demo, quản lý khuôn mặt, sự kiện và kết nối thiết bị.
+- **Local API:** Python service dùng SQLite để lưu trạng thái thiết bị, sự kiện và metadata khuôn mặt.
+- **STM32 Blue Pill:** firmware mẫu nháy LED độc lập, chưa tích hợp với luồng ESP32-CAM.
 
-- ESP32-CAM xử lý nhận diện khuôn mặt và điều khiển relay khóa cửa
-- Ứng dụng Android/WebView hiển thị giao diện điều khiển và trạng thái cửa
-- API Python cục bộ theo dõi thiết bị, heartbeat và sự kiện
-- Demo webcam trên laptop để kiểm tra luồng nhận diện bằng OpenCV/LBPH mà không cần phần cứng thực
-
-Điểm nổi bật của hệ thống là nhận diện và quyết định mở khóa được thực hiện trực tiếp trên thiết bị nhúng, không gửi ảnh hoặc dữ liệu sinh trắc học lên dịch vụ đám mây.
-
-## Tính năng chính
-
-- Nhận diện khuôn mặt trên ESP32-CAM
-- Đăng ký và lưu mẫu khuôn mặt trực tiếp trên flash của camera
-- Điều khiển relay khóa cửa tự động sau thời gian giới hạn
-- Theo dõi thiết bị và sự kiện qua API local SQLite bridge
-- Giao diện web Android/WebView hỗ trợ login, dashboard, activity, settings
-- Hỗ trợ đa ngôn ngữ: Tiếng Việt và English
-- Demo trên webcam laptop để kiểm tra nhận diện mà không cần camera thật
-
-## Kiến trúc hệ thống
+Ảnh khuôn mặt và mẫu sinh trắc học được xử lý/lưu trên thiết bị nhận diện; API chỉ nhận metadata, không nhận ảnh hay mẫu sinh trắc học.
 
 ```text
-ESP32-CAM ──> Nhận diện khuôn mặt ──> Điều khiển relay
-   │
-   └── HTTP heartbeat + event metadata ──> Local API (Python + SQLite)
-                                             │
-                                             ├── Android/WebView app
-                                             └── Management UI / local monitor
+ESP32 DevKit + OV2640 ──> Nhận diện khuôn mặt ──> Relay khóa cửa
+     │
+     └── HTTP heartbeat + metadata sự kiện ──> Local API (Python + SQLite)
+                                                  └── Android/WebView app
+
+STM32 Blue Pill ──> Firmware mẫu độc lập
 ```
+
+## Tài liệu
+
+- [Software — ứng dụng Android, Local API, build và kiểm thử](software/README.md)
+- [Hardware — firmware, cấu hình board, nạp/debug và sơ đồ](hardware/README.md)
+- [Tài liệu chi tiết Local API](software/local-api/README.md)
 
 ## Cấu trúc repository
 
 ```text
-app/                         Ứng dụng Android / WebView
+software/
+  app/            Android app và giao diện WebView
+  local-api/      Python API, SQLite bridge và tests
 hardware/
-  Makefile                   Lệnh build/debug/nạp riêng từng board
-  esp32-camera/               PlatformIO project cho ESP32-CAM
-  stm32-bluepill/             PlatformIO project cho STM32F103C8T6
-hardware/assets/            Sơ đồ mạch, ảnh kiến trúc và tài liệu phần cứng
-tools/local-api/            Local API + SQLite bridge
-tools/laptop-demo/          Demo webcam trên laptop
-LICENSE                     MIT License
-README.md                   Tài liệu dự án
+  esp32-camera/   Firmware ESP32 DevKit + OV2640
+  stm32-bluepill/ Firmware mẫu STM32F103C8T6
+  assets/         Sơ đồ mạch và kiến trúc
+  Makefile        Lệnh build/nạp/debug firmware
 ```
 
-## Phần cứng đề xuất
+## Bắt đầu nhanh
 
-- ESP32-CAM AI Thinker
-- Camera OV2640
-- Module relay
-- Khóa điện và nguồn cung cấp phù hợp
-- USB-to-TTL để nạp firmware
+### Chạy giao diện app local
 
-Sơ đồ và tài liệu liên quan:
-
-- [Circuit.jpg](hardware/assets/Circuit.jpg)
-- [Circuit.fzz](hardware/assets/Circuit.fzz)
-- [Face Recognition Door Lock Architecture.png](hardware/assets/Face%20Recognition%20Door%20Lock%20Architecture.png)
-
-## Khởi chạy nhanh
-
-### 1) Cấu hình firmware ESP32-CAM
-
-1. Cài PlatformIO Core hoặc PlatformIO IDE extension cho VS Code. Để dùng `Makefile` trên Windows, cài GNU Make (ví dụ qua MSYS2 hoặc Git Bash) và chạy lệnh từ thư mục `hardware/`.
-2. Sao chép file cấu hình mẫu:
+Từ thư mục gốc repository, chạy preview giao diện WebView:
 
 ```powershell
-Copy-Item hardware/esp32-camera/include/secrets.h.example hardware/esp32-camera/include/secrets.h
+python -m http.server 8001 --bind 0.0.0.0 --directory software/app/src/main
 ```
 
-3. Chỉnh sửa `hardware/esp32-camera/include/secrets.h` và điền thông tin Wi-Fi, API token và địa chỉ API local.
-4. Dùng `Makefile` trong `hardware/` để build riêng firmware ESP32-CAM:
+Mở `http://127.0.0.1:8001/assets/login.html` trên máy đang chạy server. Thiết bị khác trong cùng mạng có thể dùng `http://<ip-laptop>:8001/assets/login.html`; nếu cần, cho phép Python truy cập mạng Private trong Windows Firewall. Cổng `8001` chỉ phục vụ giao diện preview; Local API sử dụng cổng `8766` và cần chạy riêng. Hướng dẫn build APK và preview có trong [software/README.md](software/README.md).
 
-```powershell
-make -C hardware esp32-build
-```
+### Chạy local API
 
-5. Kết nối USB-to-TTL, sau đó nạp firmware:
-
-```powershell
-make -C hardware esp32-upload
-```
-
-Nếu PlatformIO không tự nhận cổng serial, thêm `upload_port = COMx` vào môi trường `[env:esp32cam]` trong `platformio.ini`.
-Mở Serial Monitor ở baud `115200` để kiểm tra địa chỉ IP:
-
-```powershell
-make -C hardware esp32-monitor
-```
-
-### 2) Build/debug/nạp STM32 Blue Pill
-
-`hardware/stm32-bluepill/` là PlatformIO project riêng cho STM32F103C8T6, độc lập với firmware ESP32. Firmware mẫu nháy LED tích hợp trên board. Cấu hình mặc định dùng ST-Link cho debug và nạp; kết nối ST-Link trước khi chạy hai lệnh tương ứng.
-
-```powershell
-make -C hardware stm32-build
-make -C hardware stm32-debug
-make -C hardware stm32-upload
-```
-
-Để mở serial monitor của STM32 (cần kết nối UART-to-USB phù hợp):
-
-```powershell
-make -C hardware stm32-monitor
-```
-
-Các lệnh `esp32-*` và `stm32-*` chọn project độc lập; xem toàn bộ target bằng `make -C hardware help`.
-
-### 3) Chạy local API
-
-Tham khảo hướng dẫn chi tiết tại [tools/local-api/README.md](tools/local-api/README.md).
-
-Ví dụ:
+Từ thư mục gốc, khởi chạy API trên Windows PowerShell:
 
 ```powershell
 $token = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
 $env:SMARTDOOR_API_TOKEN = $token
-python tools/local-api/server.py
+python software/local-api/server.py
 ```
 
-API mặc định lắng nghe trên `0.0.0.0:8766` và lưu dữ liệu SQLite tại `tools/local-api/smartdoor.sqlite3`.
+API mặc định lắng nghe trên `0.0.0.0:8766`. Cấu hình đầy đủ và cách kết nối app/ESP32-CAM có trong [software/local-api/README.md](software/local-api/README.md).
 
-### 4) Build ứng dụng Android
+### Build firmware
 
-Mở thư mục `app/` bằng Android Studio hoặc build bằng Gradle:
+Từ thư mục gốc, có thể dùng GNU Make:
 
 ```powershell
-gradle --no-daemon -p app assembleDebug
+make -C hardware help
+make -C hardware esp32-build
+make -C hardware stm32-build
 ```
 
-APK debug sẽ nằm ở:
+Trước khi build firmware camera, tạo và cấu hình file secrets cục bộ. Xem hướng dẫn phần cứng để biết công cụ, board tương thích, nạp firmware và các lưu ý an toàn.
 
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
+## Giới hạn và an toàn
 
-## Chạy giao diện trên mạng LAN không cần APK
-
-Bạn có thể mở giao diện web trên điện thoại hoặc máy tính cùng mạng Wi-Fi mà không cần build APK.
-
-### Bước 1: khởi động server preview
-
-```powershell
-python -m http.server 8001 --bind 0.0.0.0 --directory app/src/main/assets
-```
-
-Sau đó, mở trên máy tính:
-
-```text
-http://127.0.0.1:8001/
-```
-
-Trên điện thoại cùng mạng Wi-Fi, truy cập theo dạng:
-
-```text
-http://<ip-laptop>:8001/login.html
-```
-
-Ví dụ:
-
-```text
-http://192.168.1.135:8001/login.html
-```
-
-Lưu ý:
-
-- Cần đặt IP tĩnh hoặc reservation cho laptop trong router để giữ địa chỉ ổn định
-- Máy tính và điện thoại phải cùng mạng LAN
-- Windows Firewall cần cho phép Python truy cập mạng Private
-- Đây là giao diện preview thử nghiệm trên LAN, không phải hệ thống xác thực production
-
-## Demo webcam trên laptop
-
-Dự án có demo sử dụng webcam của máy tính để kiểm tra luồng đăng ký và nhận diện khuôn mặt bằng OpenCV LBPH.
-
-Tạo môi trường ảo Python:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-```
-
-Chạy đăng ký khuôn mặt:
-
-```powershell
-.\.venv\Scripts\python.exe tools/laptop-demo/laptop_camera_test.py --enroll "Ten nguoi"
-```
-
-Chạy nhận diện:
-
-```powershell
-.\.venv\Scripts\python.exe tools/laptop-demo/laptop_camera_test.py
-```
-
-Demo web cục bộ:
-
-```powershell
-.\.venv\Scripts\python.exe tools/laptop-demo/laptop_camera_web.py
-```
-
-Mở:
-
-```text
-http://127.0.0.1:8765
-```
-
-Dữ liệu khuôn mặt demo được lưu trong `face_test_data/` và không nên commit lên Git.
-
-## Mức độ an toàn và giới hạn hiện tại
-
-Dự án đang ở giai đoạn prototype và có một số giới hạn rõ ràng:
-
-- API local sử dụng HTTP trên mạng nội bộ tin cậy, không phải môi trường production
-- `ws://` trên ESP32-CAM chỉ phù hợp với mạng LAN nội bộ
-- Preview web không thay thế xác thực người dùng thực tế hoặc đồng bộ phiên phía server
-- Demo webcam chỉ mô phỏng luồng nhận diện, không dùng để bảo vệ cửa thật
-- Cần kiểm tra kỹ phần cứng, nguồn điện, relay và điều kiện mạng trước khi triển khai thực tế
+- Đây là prototype, không phải hệ thống kiểm soát ra vào production.
+- Local API dùng HTTP và luồng camera dùng WebSocket không mã hóa; chỉ sử dụng trong mạng LAN tin cậy, không mở các cổng này ra Internet.
+- Giao diện web demo không thay thế xác thực production.
+- Kiểm tra nguồn điện, tải relay, cách ly và sơ đồ đấu dây trước khi kết nối khóa điện.
 
 ## Bản quyền
 
-Dự án được phát hành theo giấy phép [MIT License](LICENSE).
-
-Font Material Symbols trong [app/src/main/assets/icons](app/src/main/assets/icons) có giấy phép riêng đi kèm.
-
-## Ghi chú
-
-- Firmware và giao diện camera vẫn giữ dữ liệu sinh trắc học trên thiết bị nhúng
-- Đặc điểm ưu tiên của dự án là xác thực cục bộ trên LAN thay vì truyền dữ liệu lên dịch vụ đám mây
-- Hướng dẫn chi tiết về API, schema SQLite và cấu hình kết nối: [tools/local-api/README.md](tools/local-api/README.md)
+Dự án phát hành theo [MIT License](LICENSE). Font Material Symbols có giấy phép và thông báo riêng tại [software/app/src/main/assets/icons](software/app/src/main/assets/icons).
