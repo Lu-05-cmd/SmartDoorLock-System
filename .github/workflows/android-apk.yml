@@ -21,11 +21,11 @@ jobs:
           gradle-version: '8.9'
       - uses: android-actions/setup-android@v3
       - name: Build debug APK
-        run: gradle --no-daemon -p app assembleDebug
+        run: gradle --no-daemon -p software/app assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: face-door-control-${{ github.ref_name }}
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: software/app/build/outputs/apk/debug/FaceDoorControl-debug.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publish APK release
@@ -34,7 +34,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" app/build/outputs/apk/debug/app-debug.apk --clobber
+            gh release upload "$GITHUB_REF_NAME" software/app/build/outputs/apk/debug/FaceDoorControl-debug.apk --clobber
           else
-            gh release create "$GITHUB_REF_NAME" app/build/outputs/apk/debug/app-debug.apk --title "Face Door Control $GITHUB_REF_NAME" --generate-notes
+            gh release create "$GITHUB_REF_NAME" software/app/build/outputs/apk/debug/FaceDoorControl-debug.apk --title "Face Door Control $GITHUB_REF_NAME" --generate-notes
           fi
