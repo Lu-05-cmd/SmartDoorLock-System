@@ -15,8 +15,9 @@
 #define PIN_LENGTH 6U
 #define UI_SLEEP_TICKS 3000U
 #define RFID_POLL_TICKS 5U
-#define CARD_RELEASE_POLLS 4U
+#define CARD_RELEASE_POLLS 20U
 #define DOOR_OPEN_TICKS 500U
+#define KEY_DEBOUNCE_TICKS 2U
 
 typedef struct
 {
@@ -45,6 +46,14 @@ typedef enum
     UI_CARD_LIST
 } UI_Screen_t;
 
+typedef enum
+{
+    KEYPAD_IDLE,
+    KEYPAD_DEBOUNCE_PRESS,
+    KEYPAD_WAIT_RELEASE,
+    KEYPAD_DEBOUNCE_RELEASE
+} KeypadState_t;
+
 static volatile uint32_t system_ticks;
 static AccessConfig_t access_config;
 static UI_Screen_t current_screen = UI_HOME;
@@ -61,6 +70,7 @@ static uint8_t initial_setup;
 static uint8_t card_list_selection;
 static uint8_t card_latched;
 static uint8_t card_miss_count;
+static KeypadState_t keypad_state;
 static uint8_t last_uid[10];
 static uint8_t last_uid_length;
 static uint8_t last_uid_valid;
@@ -68,6 +78,7 @@ static uint8_t servo_is_open;
 static uint32_t last_activity_tick;
 static uint32_t last_rfid_poll_tick;
 static uint32_t door_open_tick;
+static uint32_t keypad_state_tick;
 
 void Config_RCC(void);
 void Config_GPIO(void);
@@ -80,7 +91,7 @@ void SysTick_Handler(void)
 
 static uint8_t TickElapsed(uint32_t now, uint32_t start, uint32_t duration)
 {
-    return (uint32_t)(now - start) >= duration;
+    return (int32_t)(now - start) >= (int32_t)duration;
 }
 
 static uint8_t ValidUidLength(uint8_t length)
@@ -338,6 +349,13 @@ static void UI_HandleKey(char key);
 static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
 {
     int8_t card_index;
+    if(initial_setup != 0U &&
+       (current_screen == UI_SETUP_PIN ||
+        current_screen == UI_CONFIRM_PIN))
+    {
+        return;
+    }
+
     last_activity_tick = system_ticks;
     memcpy(last_uid, uid, uid_length);
     last_uid_length = uid_length;
@@ -723,34 +741,74 @@ int main(void)
     while(1)
     {
         uint32_t now = system_ticks;
-        if(keypad_wake_event != 0U)
+        if(keypad_wake_event != 0U && keypad_state == KEYPAD_IDLE)
         {
             keypad_wake_event = 0U;
+            Keypad_SetEXTIEnabled(0U);
+            keypad_state = KEYPAD_DEBOUNCE_PRESS;
+            keypad_state_tick = now;
+        }
+        else if(keypad_wake_event != 0U)
+        {
+            keypad_wake_event = 0U;
+        }
+
+        now = system_ticks;
+        if(keypad_state == KEYPAD_DEBOUNCE_PRESS &&
+           TickElapsed(now, keypad_state_tick, KEY_DEBOUNCE_TICKS))
+        {
             char key = Keypad_Scan();
-            if(display_awake == 0U)
+            if(key != '\n')
             {
-                display_awake = 1U;
-                last_activity_tick = now;
-                if(oled_ready != 0U)
+                if(display_awake == 0U)
                 {
-                    OLED_DisplayPower(1U);
-                }
-                if(access_config.card_count != 0U)
-                {
-                    current_screen = UI_PIN;
-                    memset(pin_input, 0, sizeof(pin_input));
-                    pin_digits = 0U;
-                    UI_ShowPin();
+                    display_awake = 1U;
+                    last_activity_tick = system_ticks;
+                    if(oled_ready != 0U)
+                    {
+                        OLED_DisplayPower(1U);
+                    }
+                    if(access_config.card_count != 0U)
+                    {
+                        current_screen = UI_PIN;
+                        memset(pin_input, 0, sizeof(pin_input));
+                        pin_digits = 0U;
+                        UI_ShowPin();
+                    }
+                    else
+                    {
+                        current_screen = UI_HOME;
+                        UI_ShowHome();
+                    }
                 }
                 else
                 {
-                    current_screen = UI_HOME;
-                    UI_ShowHome();
+                    UI_HandleKey(key);
                 }
             }
-            else
+            keypad_state = KEYPAD_WAIT_RELEASE;
+            keypad_state_tick = now;
+        }
+
+        if(keypad_state == KEYPAD_WAIT_RELEASE)
+        {
+            if(Keypad_IsReleased() != 0U)
             {
-                UI_HandleKey(key);
+                keypad_state = KEYPAD_DEBOUNCE_RELEASE;
+                keypad_state_tick = now;
+            }
+        }
+        else if(keypad_state == KEYPAD_DEBOUNCE_RELEASE)
+        {
+            if(Keypad_IsReleased() == 0U)
+            {
+                keypad_state = KEYPAD_WAIT_RELEASE;
+            }
+            else if(TickElapsed(now, keypad_state_tick,
+                                KEY_DEBOUNCE_TICKS))
+            {
+                keypad_state = KEYPAD_IDLE;
+                Keypad_SetEXTIEnabled(1U);
             }
         }
 
@@ -761,6 +819,7 @@ int main(void)
             HandleCardScan();
         }
 
+        now = system_ticks;
         if(servo_is_open != 0U &&
            TickElapsed(now, door_open_tick, DOOR_OPEN_TICKS))
         {
@@ -808,5 +867,6 @@ void Config_GPIO(void)
 
 void Config_EXTI(void)
 {
+    AFIO_Config();
     Keypad_ConfigEXTI();
 }

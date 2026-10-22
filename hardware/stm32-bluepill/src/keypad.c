@@ -19,7 +19,7 @@ const char keypad_map[ROWS][COLS] = {
 
 
 
-void AFIO_Config()
+void AFIO_Config(void)
 {
     AFIO->EXTICR[0] &= ~(AFIO_EXTICR1_EXTI0_Msk |
                          AFIO_EXTICR1_EXTI1_Msk);
@@ -78,6 +78,20 @@ void Keypad_ConfigEXTI()
     EXTI->IMR |= KEYPAD_EXTI_MASK;
 }
 
+void Keypad_SetEXTIEnabled(uint8_t enabled)
+{
+    if(enabled != 0U)
+    {
+        EXTI->PR = KEYPAD_EXTI_MASK;
+        EXTI->IMR |= KEYPAD_EXTI_MASK;
+    }
+    else
+    {
+        EXTI->IMR &= ~KEYPAD_EXTI_MASK;
+        EXTI->PR = KEYPAD_EXTI_MASK;
+    }
+}
+
 
 static void Keypad_SetRowsHigh()
 {
@@ -104,7 +118,6 @@ char Keypad_Scan()
     char key = '\n';
     EXTI->IMR &= ~KEYPAD_EXTI_MASK;
     EXTI->PR = KEYPAD_EXTI_MASK;
-    delay_ms(10);
 
     for(uint8_t row = 0U; row < ROWS && key == '\n'; row++)
     {
@@ -121,12 +134,19 @@ char Keypad_Scan()
             }
         }
     }
-
     GPIOB->BRR = KEYPAD_ROW_MASK;
     EXTI->PR = KEYPAD_EXTI_MASK;
-    EXTI->IMR |= KEYPAD_EXTI_MASK;
+    EXTI->PR = KEYPAD_EXTI_MASK;
 
     return key;
+}
+
+uint8_t Keypad_IsReleased(void)
+{
+    return (GPIOA->IDR & (GPIO_IDR_IDR0_Msk | GPIO_IDR_IDR1_Msk)) ==
+               (GPIO_IDR_IDR0_Msk | GPIO_IDR_IDR1_Msk) &&
+           (GPIOB->IDR & (GPIO_IDR_IDR10_Msk | GPIO_IDR_IDR11_Msk)) ==
+               (GPIO_IDR_IDR10_Msk | GPIO_IDR_IDR11_Msk);
 }
 
 void Config_Keypad()

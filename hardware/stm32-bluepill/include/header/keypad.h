@@ -14,7 +14,10 @@ extern const char keypad_map[ROWS][COLS];
 
 void Keypad_ConfigGPIO();
 void Keypad_ConfigEXTI();
+void AFIO_Config(void);
+void Keypad_SetEXTIEnabled(uint8_t enabled);
 char Keypad_Scan();
+uint8_t Keypad_IsReleased(void);
 void Config_Keypad();
 
 #endif  /* STM32_BLUEPIPP_BUTTON */
