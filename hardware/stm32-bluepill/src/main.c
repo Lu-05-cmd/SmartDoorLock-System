@@ -379,9 +379,7 @@ static void UI_ShowHome(void)
     }
     else
     {
-        OLED_ShowActionScreen("DOOR LOCK", "TAP CARD TO OPEN",
-                              ReedSwitch_GetStatus() != 0U ?
-                                  "REED: OPEN" : "REED: CLOSED");
+        OLED_ShowPinPrompt("PIN", 0U);
     }
 }
 
@@ -449,6 +447,7 @@ static void UI_ShowCardList(void)
 }
 
 static void UI_HandleKey(char key);
+static void UI_HandlePinKey(char key);
 
 static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
 {
@@ -750,8 +749,8 @@ static void UI_HandleSetupKey(char key)
             memset(pending_pin, 0, sizeof(pending_pin));
             pending_admin_pin_hash = 0U;
             OLED_ShowActionScreen("SETUP SAVED",
-                                  "ADMIN READY",
-                                  "TAP CARD TO OPEN");
+                                  "PINS READY",
+                                  "ENTER DOOR PIN");
         }
         else
         {
@@ -787,12 +786,20 @@ static void UI_HandleKey(char key)
 
     if(current_screen == UI_HOME)
     {
-        if(key == 'A' && access_config.card_count != 0U)
+        if(access_config.card_count != 0U &&
+           (key == 'A' || (key >= '0' && key <= '9')))
         {
             current_screen = UI_PIN;
             memset(pin_input, 0, sizeof(pin_input));
             pin_digits = 0U;
-            UI_ShowPin();
+            if(key >= '0' && key <= '9')
+            {
+                UI_HandlePinKey(key);
+            }
+            else
+            {
+                UI_ShowPin();
+            }
         }
         return;
     }
@@ -962,12 +969,11 @@ int main(void)
                     {
                         OLED_DisplayPower(1U);
                     }
-                    if(access_config.card_count != 0U && key == 'A')
+                    if(access_config.card_count != 0U &&
+                       (key == 'A' || (key >= '0' && key <= '9')))
                     {
-                        current_screen = UI_PIN;
-                        memset(pin_input, 0, sizeof(pin_input));
-                        pin_digits = 0U;
-                        UI_ShowPin();
+                        current_screen = UI_HOME;
+                        UI_HandleKey(key);
                     }
                     else
                     {
