@@ -174,6 +174,42 @@ static void OLED_DrawCenteredText(uint8_t y, const char *text)
     OLED_DrawText(x, y, text);
 }
 
+static void OLED_DrawLargeCenteredText(uint8_t y, const char *text)
+{
+    size_t width = strlen(text) * 12U;
+    uint8_t x = width < OLED_WIDTH ?
+                (uint8_t)((OLED_WIDTH - width) / 2U) : 0U;
+
+    while(*text != '\0' && x <= OLED_WIDTH - 10U)
+    {
+        const uint8_t *glyph = OLED_Glyph(*text++);
+        for(uint8_t column = 0U; column < 5U; column++)
+        {
+            for(uint8_t row = 0U; row < 7U; row++)
+            {
+                if((glyph[column] & (1U << row)) != 0U)
+                {
+                    for(uint8_t x_scale = 0U; x_scale < 2U; x_scale++)
+                    {
+                        for(uint8_t y_scale = 0U; y_scale < 2U; y_scale++)
+                        {
+                            uint16_t pixel =
+                                (uint16_t)y + (uint16_t)row * 2U + y_scale;
+                            uint16_t column_x =
+                                (uint16_t)x + (uint16_t)column * 2U +
+                                x_scale;
+                            framebuffer[(pixel / 8U) * OLED_WIDTH +
+                                        column_x] |=
+                                (uint8_t)(1U << (pixel % 8U));
+                        }
+                    }
+                }
+            }
+        }
+        x = (uint8_t)(x + 12U);
+    }
+}
+
 static uint8_t OLED_Refresh(void)
 {
     for(uint8_t page = 0U; page < OLED_PAGES; page++)
@@ -283,7 +319,7 @@ void OLED_ShowCenteredMessage(const char *message)
     OLED_Clear();
     if(message != NULL)
     {
-        OLED_DrawCenteredText(28U, message);
+        OLED_DrawLargeCenteredText(25U, message);
     }
     (void)OLED_Refresh();
 }

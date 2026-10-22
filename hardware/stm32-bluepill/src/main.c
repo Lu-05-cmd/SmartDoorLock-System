@@ -528,9 +528,7 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
         {
             if(current_screen != UI_MENU && oled_ready != 0U)
             {
-                OLED_ShowActionScreen("MO KHOA",
-                                      NULL,
-                                      NULL);
+                OLED_ShowCenteredMessage("DA MO KHOA");
             }
         }
         else if(oled_ready != 0U)
