@@ -6,8 +6,8 @@ from pathlib import Path
 Import("env")
 
 
-def erase_access_config(source, target, build_env):
-    package_dir = build_env.PioPlatform().get_package_dir("tool-openocd")
+def erase_access_config(source, target, env):
+    package_dir = env.PioPlatform().get_package_dir("tool-openocd")
     if not package_dir:
         raise RuntimeError("PlatformIO tool-openocd package is not installed")
 
