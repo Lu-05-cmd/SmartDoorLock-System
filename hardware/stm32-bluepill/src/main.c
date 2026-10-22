@@ -382,7 +382,7 @@ static void UI_ShowHome(void)
 
 static void UI_ShowPin(void)
 {
-    OLED_ShowPinPrompt("NHAP PIN", pin_digits, 0U);
+    OLED_ShowPinPrompt("NHAP PIN", pin_digits, 1U);
 }
 
 static void UI_ShowAdminPin(void)
@@ -601,7 +601,8 @@ static void UI_HandlePinKey(char key)
     else if(key == 'D' && pin_digits == PIN_LENGTH)
     {
         uint32_t entered_pin_hash = HashPin(pin_input);
-        if(entered_pin_hash == access_config.admin_pin_hash)
+        if(current_screen == UI_ADMIN_PIN &&
+           entered_pin_hash == access_config.admin_pin_hash)
         {
             pin_digits = 0U;
             current_screen = UI_MENU;
