@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "STM32 (PlatformIO)",
+            "includePath": [
+                "${workspaceFolder}/hardware/stm32-bluepill/include",
+                "${workspaceFolder}/hardware/stm32-bluepill/src",
+                "${env:USERPROFILE}\\.platformio\\packages\\framework-cmsis@2.50501.200527\\CMSIS\\Include",
+                "${env:USERPROFILE}\\.platformio\\packages\\framework-cmsis-stm32f1\\Include"
+            ],
+            "defines": [
+                "STM32F103xB",
+                "STM32F1"
+            ],
+            "compilerPath": "${env:USERPROFILE}\\.platformio\\packages\\toolchain-gccarmnoneeabi@1.70201.0\\bin\\arm-none-eabi-gcc.exe",
+            "compilerArgs": [
+                "-mthumb",
+                "-mcpu=cortex-m3"
+            ],
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++11"
+        }
+    ],
+    "version": 4
+}
