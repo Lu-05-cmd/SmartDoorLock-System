@@ -628,14 +628,25 @@ static void UI_HandlePinKey(char key)
             }
             return;
         }
+        uint8_t admin_pin_attempt = current_screen == UI_ADMIN_PIN;
         current_screen = UI_HOME;
         pin_digits = 0U;
-        OLED_ShowActionScreen("PIN SAI",
+        OLED_ShowActionScreen(admin_pin_attempt != 0U ?
+                              "PIN ADMIN SAI" : "PIN SAI",
+                              admin_pin_attempt != 0U ?
+                              "KHONG VAO DUOC MENU" :
                               "KHONG DUOC MO KHOA",
                               "NHAP LAI");
         return;
     }
-    UI_ShowPin();
+    if(current_screen == UI_ADMIN_PIN)
+    {
+        UI_ShowAdminPin();
+    }
+    else
+    {
+        UI_ShowPin();
+    }
 }
 
 static void UI_HandleSetupKey(char key)
