@@ -283,8 +283,9 @@ void OLED_ShowSystemMenu(uint8_t selected)
     static const char *const menu_items[] = {
         "1 ADD RFID",
         "2 CARD LIST",
-        "3 CHANGE PIN",
-        "4 EXIT"
+        "3 ADMIN PIN",
+        "4 DOOR PIN",
+        "5 EXIT"
     };
     const uint8_t item_count =
         (uint8_t)(sizeof(menu_items) / sizeof(menu_items[0]));
@@ -297,7 +298,7 @@ void OLED_ShowSystemMenu(uint8_t selected)
     OLED_DrawText(0U, 1U, "ADMIN MENU");
     for(uint8_t row = 0U; row < item_count; row++)
     {
-        uint8_t y = (uint8_t)(14U + row * 11U);
+        uint8_t y = (uint8_t)(12U + row * 10U);
         OLED_DrawText(0U, y, row == selected ? "> " : "  ");
         OLED_DrawText(12U, y, menu_items[row]);
     }

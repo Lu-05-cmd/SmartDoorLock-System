@@ -10,7 +10,8 @@
 #include "../include/header/OLED.h"
 
 #define CONFIG_FLASH_ADDRESS 0x0800FC00UL
-#define CONFIG_MAGIC 0x53444C31UL
+#define CONFIG_MAGIC 0x53444C32UL
+#define LEGACY_CONFIG_MAGIC 0x53444C31UL
 #define MAX_CARDS 10U
 #define PIN_LENGTH 6U
 #define UI_SLEEP_TICKS 3000U
@@ -32,11 +33,23 @@ typedef struct
 {
     uint32_t magic;
     uint8_t card_count;
-    uint8_t reserved[3];
-    uint32_t pin_hash;
+    uint8_t door_pin_configured;
+    uint8_t reserved[2];
+    uint32_t admin_pin_hash;
+    uint32_t door_pin_hash;
     CardRecord_t cards[MAX_CARDS];
     uint32_t checksum;
 } AccessConfig_t;
+
+typedef struct
+{
+    uint32_t magic;
+    uint8_t card_count;
+    uint8_t reserved[3];
+    uint32_t admin_pin_hash;
+    CardRecord_t cards[MAX_CARDS];
+    uint32_t checksum;
+} LegacyAccessConfig_t;
 
 typedef enum
 {
@@ -44,6 +57,8 @@ typedef enum
     UI_PIN,
     UI_SETUP_PIN,
     UI_CONFIRM_PIN,
+    UI_SETUP_DOOR_PIN,
+    UI_CONFIRM_DOOR_PIN,
     UI_MENU,
     UI_ADD_CARD,
     UI_CARD_LIST
@@ -67,6 +82,7 @@ static uint8_t menu_selection;
 static uint8_t pin_digits;
 static uint8_t pin_input[PIN_LENGTH];
 static uint8_t pending_pin[PIN_LENGTH];
+static uint32_t pending_admin_pin_hash;
 static uint8_t pending_admin_uid[10];
 static uint8_t pending_admin_uid_length;
 static uint8_t initial_setup;
@@ -124,12 +140,44 @@ static uint32_t ConfigChecksum(const AccessConfig_t *config)
     return checksum;
 }
 
+static uint32_t LegacyConfigChecksum(const LegacyAccessConfig_t *config)
+{
+    const uint8_t *bytes = (const uint8_t *)config;
+    uint32_t checksum = 2166136261UL;
+    for(size_t i = 0U; i < offsetof(LegacyAccessConfig_t, checksum); i++)
+    {
+        checksum = (checksum ^ bytes[i]) * 16777619UL;
+    }
+    return checksum;
+}
+
 static uint8_t ConfigIsValid(const AccessConfig_t *config)
 {
     if(config->magic != CONFIG_MAGIC ||
        config->card_count == 0U ||
        config->card_count > MAX_CARDS ||
+       config->door_pin_configured > 1U ||
        config->checksum != ConfigChecksum(config))
+    {
+        return 0U;
+    }
+
+    for(uint8_t i = 0U; i < config->card_count; i++)
+    {
+        if(!ValidUidLength(config->cards[i].length))
+        {
+            return 0U;
+        }
+    }
+    return 1U;
+}
+
+static uint8_t LegacyConfigIsValid(const LegacyAccessConfig_t *config)
+{
+    if(config->magic != LEGACY_CONFIG_MAGIC ||
+       config->card_count == 0U ||
+       config->card_count > MAX_CARDS ||
+       config->checksum != LegacyConfigChecksum(config))
     {
         return 0U;
     }
@@ -213,13 +261,29 @@ static uint8_t ConfigLoad(void)
 {
     const AccessConfig_t *stored =
         (const AccessConfig_t *)CONFIG_FLASH_ADDRESS;
-    if(!ConfigIsValid(stored))
+    if(ConfigIsValid(stored))
+    {
+        memcpy(&access_config, stored, sizeof(access_config));
+        return 1U;
+    }
+
+    const LegacyAccessConfig_t *legacy =
+        (const LegacyAccessConfig_t *)CONFIG_FLASH_ADDRESS;
+    if(LegacyConfigIsValid(legacy))
+    {
+        memset(&access_config, 0, sizeof(access_config));
+        access_config.magic = CONFIG_MAGIC;
+        access_config.card_count = legacy->card_count;
+        access_config.admin_pin_hash = legacy->admin_pin_hash;
+        memcpy(access_config.cards, legacy->cards,
+               sizeof(legacy->cards));
+        return 1U;
+    }
+
     {
         memset(&access_config, 0, sizeof(access_config));
         return 0U;
     }
-    memcpy(&access_config, stored, sizeof(access_config));
-    return 1U;
 }
 
 static void Servo_SetAngle(uint16_t angle)
@@ -328,8 +392,18 @@ static void UI_ShowPin(void)
 
 static void UI_ShowSetupPin(void)
 {
-    OLED_ShowPinPrompt(initial_setup != 0U ? "SET ADMIN PIN" :
-                       "CHANGE ADMIN PIN", pin_digits);
+    const char *title;
+    if(current_screen == UI_SETUP_DOOR_PIN)
+    {
+        title = initial_setup != 0U ? "SET DOOR PIN" :
+                "CHANGE DOOR PIN";
+    }
+    else
+    {
+        title = initial_setup != 0U ? "SET ADMIN PIN" :
+                "CHANGE ADMIN PIN";
+    }
+    OLED_ShowPinPrompt(title, pin_digits);
 }
 
 static void UI_ShowMenu(void)
@@ -381,7 +455,9 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
     int8_t card_index;
     if(initial_setup != 0U &&
        (current_screen == UI_SETUP_PIN ||
-        current_screen == UI_CONFIRM_PIN))
+        current_screen == UI_CONFIRM_PIN ||
+        current_screen == UI_SETUP_DOOR_PIN ||
+        current_screen == UI_CONFIRM_DOOR_PIN))
     {
         return;
     }
@@ -531,12 +607,30 @@ static void UI_HandlePinKey(char key)
     }
     else if(key == 'D' && pin_digits == PIN_LENGTH)
     {
-        if(HashPin(pin_input) == access_config.pin_hash)
+        uint32_t entered_pin_hash = HashPin(pin_input);
+        if(entered_pin_hash == access_config.admin_pin_hash)
         {
             pin_digits = 0U;
             current_screen = UI_MENU;
             menu_selection = 0U;
             UI_ShowMenu();
+            return;
+        }
+        if(access_config.door_pin_configured != 0U &&
+           entered_pin_hash == access_config.door_pin_hash)
+        {
+            pin_digits = 0U;
+            if(Servo_Open() != 0U)
+            {
+                current_screen = UI_HOME;
+                OLED_ShowActionScreen("ACCESS GRANTED", NULL, NULL);
+            }
+            else
+            {
+                current_screen = UI_HOME;
+                OLED_ShowActionScreen("SERVO PWM ERROR",
+                                      "CHECK PA7 / TIM3", NULL);
+            }
             return;
         }
         current_screen = UI_HOME;
@@ -551,6 +645,10 @@ static void UI_HandlePinKey(char key)
 
 static void UI_HandleSetupKey(char key)
 {
+    uint8_t setting_door_pin =
+        current_screen == UI_SETUP_DOOR_PIN ||
+        current_screen == UI_CONFIRM_DOOR_PIN;
+
     if(key >= '0' && key <= '9' && pin_digits < PIN_LENGTH)
     {
         pin_input[pin_digits++] = (uint8_t)key;
@@ -568,13 +666,17 @@ static void UI_HandleSetupKey(char key)
     }
     else if(key == 'D' && pin_digits == PIN_LENGTH)
     {
-        if(current_screen == UI_SETUP_PIN)
+        if(current_screen == UI_SETUP_PIN ||
+           current_screen == UI_SETUP_DOOR_PIN)
         {
             memcpy(pending_pin, pin_input, PIN_LENGTH);
             memset(pin_input, 0, sizeof(pin_input));
             pin_digits = 0U;
-            current_screen = UI_CONFIRM_PIN;
-            OLED_ShowPinPrompt("CONFIRM ADMIN PIN", pin_digits);
+            current_screen = setting_door_pin ?
+                             UI_CONFIRM_DOOR_PIN : UI_CONFIRM_PIN;
+            OLED_ShowPinPrompt(setting_door_pin ?
+                               "CONFIRM DOOR PIN" :
+                               "CONFIRM ADMIN PIN", pin_digits);
             return;
         }
 
@@ -582,10 +684,38 @@ static void UI_HandleSetupKey(char key)
         {
             memset(pin_input, 0, sizeof(pin_input));
             pin_digits = 0U;
-            current_screen = UI_SETUP_PIN;
+            current_screen = setting_door_pin ?
+                             UI_SETUP_DOOR_PIN : UI_SETUP_PIN;
             OLED_ShowActionScreen("PIN DOES NOT MATCH",
                                   "ENTER PIN AGAIN",
                                   "USE 6 DIGITS");
+            return;
+        }
+
+        uint32_t new_pin_hash = HashPin(pending_pin);
+        uint32_t other_pin_hash = setting_door_pin ?
+                                  access_config.admin_pin_hash :
+                                  access_config.door_pin_hash;
+        if((setting_door_pin || access_config.door_pin_configured != 0U) &&
+           new_pin_hash == other_pin_hash)
+        {
+            memset(pin_input, 0, sizeof(pin_input));
+            pin_digits = 0U;
+            current_screen = setting_door_pin ?
+                             UI_SETUP_DOOR_PIN : UI_SETUP_PIN;
+            OLED_ShowActionScreen("PINS MUST DIFFER",
+                                  "USE ANOTHER PIN", NULL);
+            return;
+        }
+
+        if(current_screen == UI_CONFIRM_PIN && initial_setup != 0U)
+        {
+            pending_admin_pin_hash = new_pin_hash;
+            memset(pin_input, 0, sizeof(pin_input));
+            memset(pending_pin, 0, sizeof(pending_pin));
+            current_screen = UI_SETUP_DOOR_PIN;
+            pin_digits = 0U;
+            UI_ShowSetupPin();
             return;
         }
 
@@ -593,12 +723,23 @@ static void UI_HandleSetupKey(char key)
         if(initial_setup != 0U)
         {
             memset(&updated, 0xFF, sizeof(updated));
+            updated.reserved[0] = 0U;
+            updated.reserved[1] = 0U;
             updated.card_count = 1U;
             updated.cards[0].length = pending_admin_uid_length;
             memcpy(updated.cards[0].uid, pending_admin_uid,
                    pending_admin_uid_length);
+            updated.admin_pin_hash = pending_admin_pin_hash;
         }
-        updated.pin_hash = HashPin(pending_pin);
+        if(setting_door_pin)
+        {
+            updated.door_pin_hash = new_pin_hash;
+            updated.door_pin_configured = 1U;
+        }
+        else
+        {
+            updated.admin_pin_hash = new_pin_hash;
+        }
         if(ConfigSave(&updated))
         {
             access_config = updated;
@@ -606,6 +747,8 @@ static void UI_HandleSetupKey(char key)
             pin_digits = 0U;
             initial_setup = 0U;
             memset(pin_input, 0, sizeof(pin_input));
+            memset(pending_pin, 0, sizeof(pending_pin));
+            pending_admin_pin_hash = 0U;
             OLED_ShowActionScreen("SETUP SAVED",
                                   "ADMIN READY",
                                   "TAP CARD TO OPEN");
@@ -621,13 +764,16 @@ static void UI_HandleSetupKey(char key)
         return;
     }
 
-    if(current_screen == UI_SETUP_PIN)
+    if(current_screen == UI_SETUP_PIN ||
+       current_screen == UI_SETUP_DOOR_PIN)
     {
         UI_ShowSetupPin();
     }
     else
     {
-        OLED_ShowPinPrompt("CONFIRM ADMIN PIN", pin_digits);
+        OLED_ShowPinPrompt(setting_door_pin ?
+                           "CONFIRM DOOR PIN" :
+                           "CONFIRM ADMIN PIN", pin_digits);
     }
 }
 
@@ -657,7 +803,9 @@ static void UI_HandleKey(char key)
         return;
     }
     if(current_screen == UI_SETUP_PIN ||
-       current_screen == UI_CONFIRM_PIN)
+       current_screen == UI_CONFIRM_PIN ||
+       current_screen == UI_SETUP_DOOR_PIN ||
+       current_screen == UI_CONFIRM_DOOR_PIN)
     {
         UI_HandleSetupKey(key);
         return;
@@ -666,12 +814,12 @@ static void UI_HandleKey(char key)
     {
         if(key == '2')
         {
-            menu_selection = (uint8_t)((menu_selection + 3U) % 4U);
+            menu_selection = (uint8_t)((menu_selection + 4U) % 5U);
             UI_ShowMenu();
         }
         else if(key == '8')
         {
-            menu_selection = (uint8_t)((menu_selection + 1U) % 4U);
+            menu_selection = (uint8_t)((menu_selection + 1U) % 5U);
             UI_ShowMenu();
         }
         else if(key == 'B')
@@ -693,6 +841,13 @@ static void UI_HandleKey(char key)
                     break;
                 case 2U:
                     current_screen = UI_SETUP_PIN;
+                    initial_setup = 0U;
+                    memset(pin_input, 0, sizeof(pin_input));
+                    pin_digits = 0U;
+                    UI_ShowSetupPin();
+                    break;
+                case 3U:
+                    current_screen = UI_SETUP_DOOR_PIN;
                     initial_setup = 0U;
                     memset(pin_input, 0, sizeof(pin_input));
                     pin_digits = 0U;
