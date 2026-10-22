@@ -281,11 +281,11 @@ void OLED_ShowActionScreen(const char *title, const char *content1,
 void OLED_ShowSystemMenu(uint8_t selected)
 {
     static const char *const menu_items[] = {
-        "1 ADD RFID",
-        "2 CARD LIST",
-        "3 ADMIN PIN",
-        "4 DOOR PIN",
-        "5 EXIT"
+        "1 THEM RFID",
+        "2 DS THE",
+        "3 PIN ADMIN",
+        "4 PIN MO CUA",
+        "5 THOAT"
     };
     const uint8_t item_count =
         (uint8_t)(sizeof(menu_items) / sizeof(menu_items[0]));
@@ -307,37 +307,27 @@ void OLED_ShowSystemMenu(uint8_t selected)
 
 void OLED_ShowPinEntry(uint8_t digits_entered)
 {
-    char pin_line[] = "PIN 0/6: ------";
-    if(digits_entered > 6U)
-    {
-        digits_entered = 6U;
-    }
-    pin_line[4] = (char)('0' + digits_entered);
-    for(uint8_t i = 0U; i < digits_entered; i++)
-    {
-        pin_line[9U + i] = '*';
-    }
-    OLED_ShowActionScreen("KEYPAD VERIFY", "ENTER PIN TO UNLOCK",
-                          pin_line);
+    OLED_ShowPinPrompt("NHAP PIN", digits_entered);
 }
 
 void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered)
 {
-    char pin_line[] = "PIN: ------";
+    char pin_line[] = "MA PIN: ------";
     if(digits_entered > 6U)
     {
         digits_entered = 6U;
     }
     for(uint8_t i = 0U; i < digits_entered; i++)
     {
-        pin_line[5U + i] = '*';
+        pin_line[8U + i] = '*';
     }
     OLED_Clear();
     if(title != NULL)
     {
-        OLED_DrawCenteredText(18U, title);
+        OLED_DrawCenteredText(3U, title);
     }
-    OLED_DrawCenteredText(40U, pin_line);
+    OLED_DrawCenteredText(24U, pin_line);
+    OLED_DrawCenteredText(47U, "D: XAC NHAN");
     (void)OLED_Refresh();
 }
 

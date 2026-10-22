@@ -371,17 +371,17 @@ static void UI_ShowHome(void)
     if(access_config.magic != CONFIG_MAGIC)
     {
         current_screen = UI_SETUP_PIN;
-        OLED_ShowPinPrompt("SET ADMIN PIN", pin_digits);
+        OLED_ShowPinPrompt("TAO PIN ADMIN", pin_digits);
     }
     else
     {
-        OLED_ShowPinPrompt("PIN", 0U);
+        OLED_ShowPinPrompt("NHAP PIN", 0U);
     }
 }
 
 static void UI_ShowPin(void)
 {
-    OLED_ShowPinPrompt("PIN", pin_digits);
+    OLED_ShowPinPrompt("NHAP PIN", pin_digits);
 }
 
 static void UI_ShowSetupPin(void)
@@ -389,13 +389,13 @@ static void UI_ShowSetupPin(void)
     const char *title;
     if(current_screen == UI_SETUP_DOOR_PIN)
     {
-        title = initial_setup != 0U ? "SET DOOR PIN" :
-                "CHANGE DOOR PIN";
+        title = initial_setup != 0U ? "TAO PIN MO CUA" :
+                "DOI PIN MO CUA";
     }
     else
     {
-        title = initial_setup != 0U ? "SET ADMIN PIN" :
-                "CHANGE ADMIN PIN";
+        title = initial_setup != 0U ? "TAO PIN ADMIN" :
+                "DOI PIN ADMIN";
     }
     OLED_ShowPinPrompt(title, pin_digits);
 }
@@ -522,7 +522,7 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
         {
             if(current_screen != UI_MENU && oled_ready != 0U)
             {
-                OLED_ShowActionScreen("ACCESS GRANTED",
+                OLED_ShowActionScreen("MO KHOA",
                                       NULL,
                                       NULL);
             }
@@ -612,21 +612,21 @@ static void UI_HandlePinKey(char key)
             if(Servo_Open() != 0U)
             {
                 current_screen = UI_HOME;
-                OLED_ShowActionScreen("ACCESS GRANTED", NULL, NULL);
+                OLED_ShowActionScreen("MO KHOA", NULL, NULL);
             }
             else
             {
                 current_screen = UI_HOME;
-                OLED_ShowActionScreen("SERVO PWM ERROR",
-                                      "CHECK PA7 / TIM3", NULL);
+                OLED_ShowActionScreen("LOI SERVO",
+                                      "KIEM TRA PA7 / TIM3", NULL);
             }
             return;
         }
         current_screen = UI_HOME;
         pin_digits = 0U;
-        OLED_ShowActionScreen("PIN INCORRECT",
-                              "ACCESS DENIED",
-                              "TRY AGAIN");
+        OLED_ShowActionScreen("PIN SAI",
+                              "KHONG DUOC MO KHOA",
+                              "NHAP LAI");
         return;
     }
     UI_ShowPin();
@@ -664,8 +664,8 @@ static void UI_HandleSetupKey(char key)
             current_screen = setting_door_pin ?
                              UI_CONFIRM_DOOR_PIN : UI_CONFIRM_PIN;
             OLED_ShowPinPrompt(setting_door_pin ?
-                               "CONFIRM DOOR PIN" :
-                               "CONFIRM ADMIN PIN", pin_digits);
+                               "XAC NHAN PIN MO CUA" :
+                               "XAC NHAN PIN ADMIN", pin_digits);
             return;
         }
 
@@ -675,9 +675,9 @@ static void UI_HandleSetupKey(char key)
             pin_digits = 0U;
             current_screen = setting_door_pin ?
                              UI_SETUP_DOOR_PIN : UI_SETUP_PIN;
-            OLED_ShowActionScreen("PIN DOES NOT MATCH",
-                                  "ENTER PIN AGAIN",
-                                  "USE 6 DIGITS");
+            OLED_ShowActionScreen("PIN KHONG KHOP",
+                                  "NHAP LAI PIN",
+                                  "DUNG 6 SO");
             return;
         }
 
@@ -694,8 +694,8 @@ static void UI_HandleSetupKey(char key)
             pin_digits = 0U;
             current_screen = setting_door_pin ?
                              UI_SETUP_DOOR_PIN : UI_SETUP_PIN;
-            OLED_ShowActionScreen("PINS MUST DIFFER",
-                                  "USE ANOTHER PIN", NULL);
+            OLED_ShowActionScreen("HAI PIN PHAI KHAC",
+                                  "HAY CHON PIN KHAC", NULL);
             return;
         }
 
@@ -738,17 +738,17 @@ static void UI_HandleSetupKey(char key)
             memset(pin_input, 0, sizeof(pin_input));
             memset(pending_pin, 0, sizeof(pending_pin));
             pending_admin_pin_hash = 0U;
-            OLED_ShowActionScreen("SETUP SAVED",
-                                  "PINS READY",
-                                  "ENTER DOOR PIN");
+            OLED_ShowActionScreen("DA LUU CAI DAT",
+                                  "HAI PIN DA SAN SANG",
+                                  "NHAP PIN MO CUA");
         }
         else
         {
             current_screen = UI_HOME;
             pin_digits = 0U;
-            OLED_ShowActionScreen("FLASH SAVE ERROR",
-                                  "SETUP NOT SAVED",
-                                  "CHECK FLASH");
+            OLED_ShowActionScreen("LOI LUU CAI DAT",
+                                  "CHUA LUU PIN",
+                                  "KIEM TRA FLASH");
         }
         return;
     }
@@ -761,8 +761,8 @@ static void UI_HandleSetupKey(char key)
     else
     {
         OLED_ShowPinPrompt(setting_door_pin ?
-                           "CONFIRM DOOR PIN" :
-                           "CONFIRM ADMIN PIN", pin_digits);
+                           "XAC NHAN PIN MO CUA" :
+                           "XAC NHAN PIN ADMIN", pin_digits);
     }
 }
 
