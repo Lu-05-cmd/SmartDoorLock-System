@@ -18,6 +18,9 @@
 #define CARD_RELEASE_POLLS 20U
 #define DOOR_OPEN_TICKS 500U
 #define KEY_DEBOUNCE_TICKS 2U
+#define SERVO_FRAME_US 20000U
+#define SERVO_MIN_PULSE_US 500U
+#define SERVO_MAX_PULSE_US 2500U
 
 typedef struct
 {
@@ -75,6 +78,7 @@ static uint8_t last_uid[10];
 static uint8_t last_uid_length;
 static uint8_t last_uid_valid;
 static uint8_t servo_is_open;
+static uint8_t servo_ready;
 static uint32_t last_activity_tick;
 static uint32_t last_rfid_poll_tick;
 static uint32_t door_open_tick;
@@ -220,36 +224,66 @@ static uint8_t ConfigLoad(void)
 
 static void Servo_SetAngle(uint16_t angle)
 {
+    if(servo_ready == 0U)
+    {
+        return;
+    }
     if(angle > 180U)
     {
         angle = 180U;
     }
-    TIM3->CCR2 = (uint16_t)(500U + ((2000U * angle) / 180U));
+    TIM3->CCR2 = (uint16_t)(SERVO_MIN_PULSE_US +
+        (((SERVO_MAX_PULSE_US - SERVO_MIN_PULSE_US) * angle) / 180U));
 }
 
-static void Servo_Init(void)
+static uint8_t Servo_Init(void)
 {
+    uint32_t timer_clock = SystemCoreClock;
+    uint32_t apb1_prescaler =
+        (RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos;
+    if(apb1_prescaler >= 4U)
+    {
+        timer_clock >>= (apb1_prescaler - 3U);
+        timer_clock *= 2U;
+    }
+
+    uint32_t prescaler_divider =
+        (timer_clock + 500000U) / 1000000U;
+    if(prescaler_divider == 0U || prescaler_divider > 65536U)
+    {
+        return 0U;
+    }
+
     GPIOA->CRL = (GPIOA->CRL &
                   ~(GPIO_CRL_MODE7_Msk | GPIO_CRL_CNF7_Msk)) |
-                 GPIO_CRL_MODE7_0 | GPIO_CRL_MODE7_1 |
+                 GPIO_CRL_MODE7_1 |
                  GPIO_CRL_CNF7_1;
     TIM3->CR1 = 0U;
-    TIM3->PSC = 71U;
-    TIM3->ARR = 19999U;
-    TIM3->CCR2 = 500U;
-    TIM3->CCMR1 = (TIM3->CCMR1 & ~TIM_CCMR1_OC2M_Msk) |
+    TIM3->PSC = prescaler_divider - 1U;
+    TIM3->ARR = SERVO_FRAME_US - 1U;
+    TIM3->CCR2 = SERVO_MIN_PULSE_US;
+    TIM3->CCMR1 = (TIM3->CCMR1 &
+                   ~(TIM_CCMR1_CC2S_Msk | TIM_CCMR1_OC2M_Msk)) |
                   TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1 |
                   TIM_CCMR1_OC2PE;
-    TIM3->CCER |= TIM_CCER_CC2E;
+    TIM3->CCER = (TIM3->CCER & ~TIM_CCER_CC2P) | TIM_CCER_CC2E;
     TIM3->EGR = TIM_EGR_UG;
+    TIM3->SR = 0U;
     TIM3->CR1 = TIM_CR1_ARPE | TIM_CR1_CEN;
+    servo_ready = 1U;
+    return 1U;
 }
 
-static void Servo_Open(void)
+static uint8_t Servo_Open(void)
 {
+    if(servo_ready == 0U)
+    {
+        return 0U;
+    }
     Servo_SetAngle(180U);
     servo_is_open = 1U;
     door_open_tick = system_ticks;
+    return 1U;
 }
 
 static uint8_t UIDMatches(const CardRecord_t *card,
@@ -275,18 +309,17 @@ static void UI_ShowHome(void)
 {
     if(access_config.card_count == 0U)
     {
-        OLED_ShowLines("DOOR LOCK SETUP",
-                       "SCAN FIRST ADMIN",
-                       "CARD TO CONTINUE",
-                       "A WAKE / PIN");
+        OLED_ShowActionScreen("DOOR LOCK SETUP",
+                              "SCAN FIRST ADMIN",
+                              "CARD TO CONTINUE",
+                              "A: WAKE", NULL, NULL, NULL);
     }
     else
     {
-        OLED_ShowLines("DOOR LOCK",
-                       "TAP CARD TO OPEN",
-                       "A ADMIN PIN / MENU",
-                       ReedSwitch_GetStatus() != 0U ?
-                           "REED OPEN" : "REED CLOSED");
+        OLED_ShowActionScreen("DOOR LOCK", "TAP CARD TO OPEN",
+                              ReedSwitch_GetStatus() != 0U ?
+                                  "REED: OPEN" : "REED: CLOSED",
+                              "A: ADMIN PIN", NULL, NULL, NULL);
     }
 }
 
@@ -327,21 +360,20 @@ static void UI_ShowCardList(void)
 {
     if(access_config.card_count == 0U)
     {
-        OLED_ShowLines("RFID ACCESS LIST", "NO CARDS",
-                       "SCAN ADMIN CARD", "B BACK");
+        OLED_ShowRfidCard("NO CARDS", "SCAN ADMIN CARD");
         return;
     }
 
-    char index_line[21];
-    char uid_line[21];
+    char card_label[21];
+    char uid_text[21];
     const CardRecord_t *card = &access_config.cards[card_list_selection];
-    (void)snprintf(index_line, sizeof(index_line), "%s CARD %u/%u",
+    (void)snprintf(card_label, sizeof(card_label), "%c%02u %s %u/%u",
+                   '>', (unsigned int)(card_list_selection + 1U),
                    card_list_selection == 0U ? "ADMIN" : "USER",
                    (unsigned int)(card_list_selection + 1U),
                    (unsigned int)access_config.card_count);
-    UI_ShowUIDText(card->uid, card->length, uid_line, sizeof(uid_line));
-    OLED_ShowLines("RFID ACCESS LIST", index_line, uid_line,
-                   "2/8 MOVE B BACK");
+    UI_ShowUIDText(card->uid, card->length, uid_text, sizeof(uid_text));
+    OLED_ShowRfidCard(card_label, uid_text);
 }
 
 static void UI_HandleKey(char key);
@@ -389,8 +421,10 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
         {
             if(oled_ready != 0U)
             {
-                OLED_ShowLines("CARD ALREADY", "REGISTERED",
-                               "SCAN ANOTHER", "B BACK");
+                OLED_ShowActionScreen("CARD ALREADY",
+                                      "THIS CARD IS SAVED",
+                                      "SCAN ANOTHER CARD",
+                                      "B: BACK", NULL, NULL, NULL);
             }
             return;
         }
@@ -398,8 +432,10 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
         {
             if(oled_ready != 0U)
             {
-                OLED_ShowLines("CARD LIST FULL", "MAX 10 CARDS",
-                               "REMOVE NOT SUPPORTED", "B BACK");
+                OLED_ShowActionScreen("CARD LIST FULL",
+                                      "MAX 10 CARDS",
+                                      "REMOVE NOT SUPPORTED",
+                                      "B: BACK", NULL, NULL, NULL);
             }
             return;
         }
@@ -414,38 +450,51 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
             access_config = updated;
             if(oled_ready != 0U)
             {
-                OLED_ShowLines("CARD REGISTERED",
-                               "SCAN NEXT CARD",
-                               "MAX 10 CARDS", "B BACK");
+                OLED_ShowActionScreen("CARD REGISTERED",
+                                      "SCAN NEXT CARD",
+                                      "MAX 10 CARDS",
+                                      "B: BACK", NULL, NULL, NULL);
             }
         }
         else if(oled_ready != 0U)
         {
-            OLED_ShowLines("FLASH SAVE ERROR",
-                           "CARD NOT SAVED",
-                           "CHECK FLASH CONFIG",
-                           "B BACK");
+            OLED_ShowActionScreen("FLASH SAVE ERROR",
+                                  "CARD NOT SAVED",
+                                  "CHECK FLASH CONFIG",
+                                  "B: BACK", NULL, NULL, NULL);
         }
         return;
     }
 
     if(FindCard(uid, uid_length) >= 0)
     {
-        Servo_Open();
-        if(current_screen != UI_MENU && oled_ready != 0U)
+        if(Servo_Open() != 0U)
         {
-            OLED_ShowLines("ACCESS GRANTED",
-                           "DOOR OPEN",
-                           "LOCKS IN 5 SECONDS",
-                           "A ADMIN MENU");
+            if(current_screen != UI_MENU && oled_ready != 0U)
+            {
+                OLED_ShowActionScreen("ACCESS GRANTED",
+                                      "DOOR OPEN",
+                                      "LOCKS IN 5 SECONDS",
+                                      "A: ADMIN PIN",
+                                      NULL, NULL, NULL);
+            }
+        }
+        else if(oled_ready != 0U)
+        {
+            OLED_ShowActionScreen("CARD AUTHORIZED",
+                                  "SERVO PWM ERROR",
+                                  "CHECK PA7 / TIM3",
+                                  "A: ADMIN PIN",
+                                  NULL, NULL, NULL);
         }
     }
     else if(oled_ready != 0U)
     {
-        OLED_ShowLines("ACCESS DENIED",
-                       "CARD NOT REGISTERED",
-                       "ASK ADMIN",
-                       "A ADMIN PIN");
+        OLED_ShowActionScreen("ACCESS DENIED",
+                              "CARD NOT REGISTERED",
+                              "ASK ADMIN",
+                              "A: ADMIN PIN",
+                              NULL, NULL, NULL);
     }
 }
 
@@ -499,16 +548,28 @@ static void UI_HandlePinKey(char key)
             pin_digits = 0U;
             current_screen = UI_MENU;
             menu_selection = 0U;
-            Servo_Open();
-            UI_ShowMenu();
+            if(Servo_Open() != 0U)
+            {
+                UI_ShowMenu();
+            }
+            else
+            {
+                OLED_ShowActionScreen("ADMIN PIN OK",
+                                      "SERVO PWM ERROR",
+                                      "MENU STILL ACTIVE",
+                                      "2/8: MOVE",
+                                      "D: SELECT",
+                                      "B: BACK", NULL);
+            }
             return;
         }
         current_screen = UI_HOME;
         pin_digits = 0U;
-        OLED_ShowLines("PIN INCORRECT",
-                       "ACCESS DENIED",
-                       "TRY AGAIN",
-                       "A ENTER PIN");
+        OLED_ShowActionScreen("PIN INCORRECT",
+                              "ACCESS DENIED",
+                              "TRY AGAIN",
+                              "A: RETRY PIN",
+                              NULL, NULL, NULL);
         return;
     }
     UI_ShowPin();
@@ -548,10 +609,11 @@ static void UI_HandleSetupKey(char key)
             memset(pin_input, 0, sizeof(pin_input));
             pin_digits = 0U;
             current_screen = UI_SETUP_PIN;
-            OLED_ShowLines("PIN DOES NOT MATCH",
-                           "ENTER PIN AGAIN",
-                           "USE 6 DIGITS",
-                           "D NEXT");
+            OLED_ShowActionScreen("PIN DOES NOT MATCH",
+                                  "ENTER PIN AGAIN",
+                                  "USE 6 DIGITS",
+                                  "D: CONTINUE",
+                                  "B: BACK", NULL, NULL);
             return;
         }
 
@@ -572,19 +634,21 @@ static void UI_HandleSetupKey(char key)
             pin_digits = 0U;
             initial_setup = 0U;
             memset(pin_input, 0, sizeof(pin_input));
-            OLED_ShowLines("SETUP SAVED",
-                           "ADMIN READY",
-                           "TAP CARD TO OPEN",
-                           "A ADMIN PIN");
+            OLED_ShowActionScreen("SETUP SAVED",
+                                  "ADMIN READY",
+                                  "TAP CARD TO OPEN",
+                                  "A: ADMIN PIN",
+                                  NULL, NULL, NULL);
         }
         else
         {
             current_screen = UI_HOME;
             pin_digits = 0U;
-            OLED_ShowLines("FLASH SAVE ERROR",
-                           "SETUP NOT SAVED",
-                           "CHECK FLASH",
-                           "SCAN ADMIN CARD");
+            OLED_ShowActionScreen("FLASH SAVE ERROR",
+                                  "SETUP NOT SAVED",
+                                  "CHECK FLASH",
+                                  "B: BACK",
+                                  NULL, NULL, NULL);
         }
         return;
     }
@@ -713,7 +777,7 @@ int main(void)
     delay_init();
     Config_GPIO();
     Config_EXTI();
-    Servo_Init();
+    servo_ready = Servo_Init();
     (void)SysTick_Config(SystemCoreClock / 100U);
 
     (void)ConfigLoad();
@@ -721,11 +785,11 @@ int main(void)
     rfid_ready = RC522_Init();
     if(oled_ready != 0U)
     {
-        if(rfid_ready != 0U)
+        if(rfid_ready != 0U && servo_ready != 0U)
         {
             UI_ShowHome();
         }
-        else
+        else if(rfid_ready == 0U)
         {
             static const char hex[] = "0123456789ABCDEF";
             uint8_t version = RC522_GetVersion();
@@ -734,6 +798,13 @@ int main(void)
             version_line[10] = hex[version & 0x0FU];
             OLED_ShowLines("RC522 INIT ERROR", version_line,
                            "CHECK SPI/3V3/GND", "CS PA15 RST PA4");
+        }
+        else
+        {
+            OLED_ShowLines("SERVO PWM ERROR",
+                           "CHECK PA7 / TIM3",
+                           "CHECK TIMER CLOCK",
+                           "RFID STILL ACTIVE");
         }
     }
 
