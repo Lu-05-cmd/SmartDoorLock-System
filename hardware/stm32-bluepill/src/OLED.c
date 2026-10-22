@@ -335,9 +335,9 @@ void OLED_ShowSystemMenu(uint8_t selected)
         OLED_DrawText(12U, y, menu_items[item]);
     }
     OLED_DrawHorizontalLine(29U);
-    OLED_DrawText(0U, 31U, "2: PREVIOUS");
+    OLED_DrawText(0U, 31U, "2: UP");
     OLED_DrawHorizontalLine(38U);
-    OLED_DrawText(0U, 39U, "8: NEXT");
+    OLED_DrawText(0U, 39U, "8: DOWN");
     OLED_DrawHorizontalLine(46U);
     OLED_DrawText(0U, 47U, "D: SELECT");
     OLED_DrawHorizontalLine(54U);
@@ -393,7 +393,9 @@ void OLED_ShowRfidCard(const char *label, const char *uid)
     if(uid != NULL) OLED_DrawText(0U, 23U, uid);
     OLED_DrawHorizontalLine(32U);
     OLED_DrawText(0U, 34U, "2: PREVIOUS");
+    OLED_DrawHorizontalLine(42U);
     OLED_DrawText(0U, 43U, "8: NEXT");
+    OLED_DrawHorizontalLine(51U);
     OLED_DrawText(0U, 52U, "B: BACK");
     (void)OLED_Refresh();
 }
