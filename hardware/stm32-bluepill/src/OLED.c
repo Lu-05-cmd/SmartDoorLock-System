@@ -285,13 +285,16 @@ void OLED_ShowActionScreen(const char *title, const char *content1,
     OLED_Clear();
     if(title != NULL) OLED_DrawText(0U, 1U, title);
     OLED_DrawHorizontalLine(10U);
-    if(content1 != NULL) OLED_DrawText(0U, 15U, content1);
-    if(content2 != NULL) OLED_DrawText(0U, 27U, content2);
-    OLED_DrawHorizontalLine(40U);
-    if(action1 != NULL) OLED_DrawText(0U, 44U, action1);
-    if(action2 != NULL) OLED_DrawText(66U, 44U, action2);
-    if(action3 != NULL) OLED_DrawText(0U, 54U, action3);
-    if(action4 != NULL) OLED_DrawText(66U, 54U, action4);
+    if(content1 != NULL) OLED_DrawText(0U, 12U, content1);
+    if(content2 != NULL) OLED_DrawText(0U, 20U, content2);
+    OLED_DrawHorizontalLine(28U);
+    if(action1 != NULL) OLED_DrawText(0U, 30U, action1);
+    OLED_DrawHorizontalLine(37U);
+    if(action2 != NULL) OLED_DrawText(0U, 38U, action2);
+    OLED_DrawHorizontalLine(45U);
+    if(action3 != NULL) OLED_DrawText(0U, 46U, action3);
+    OLED_DrawHorizontalLine(53U);
+    if(action4 != NULL) OLED_DrawText(0U, 54U, action4);
     (void)OLED_Refresh();
 }
 
@@ -305,7 +308,7 @@ void OLED_ShowSystemMenu(uint8_t selected)
     };
     const uint8_t item_count =
         (uint8_t)(sizeof(menu_items) / sizeof(menu_items[0]));
-    const uint8_t visible_items = 3U;
+    const uint8_t visible_items = 2U;
     uint8_t first_item = 0U;
 
     if(selected >= item_count)
@@ -327,14 +330,18 @@ void OLED_ShowSystemMenu(uint8_t selected)
         {
             break;
         }
-        uint8_t y = (uint8_t)(12U + row * 12U);
+        uint8_t y = (uint8_t)(12U + row * 9U);
         OLED_DrawText(0U, y, item == selected ? "> " : "  ");
         OLED_DrawText(12U, y, menu_items[item]);
     }
-    OLED_DrawHorizontalLine(48U);
-    OLED_DrawText(0U, 50U, "2/8: MOVE");
-    OLED_DrawText(66U, 50U, "D: SELECT");
-    OLED_DrawText(0U, 57U, "B: BACK");
+    OLED_DrawHorizontalLine(29U);
+    OLED_DrawText(0U, 31U, "2: PREVIOUS");
+    OLED_DrawHorizontalLine(38U);
+    OLED_DrawText(0U, 39U, "8: NEXT");
+    OLED_DrawHorizontalLine(46U);
+    OLED_DrawText(0U, 47U, "D: SELECT");
+    OLED_DrawHorizontalLine(54U);
+    OLED_DrawText(0U, 55U, "B: BACK");
     (void)OLED_Refresh();
 }
 
@@ -382,11 +389,12 @@ void OLED_ShowRfidCard(const char *label, const char *uid)
     OLED_Clear();
     OLED_DrawText(0U, 1U, "RFID CARD LIST");
     OLED_DrawHorizontalLine(10U);
-    if(label != NULL) OLED_DrawText(0U, 15U, label);
-    if(uid != NULL) OLED_DrawText(0U, 27U, uid);
-    OLED_DrawHorizontalLine(40U);
-    OLED_DrawText(0U, 44U, "2/8: SCROLL");
-    OLED_DrawText(0U, 54U, "B: BACK");
+    if(label != NULL) OLED_DrawText(0U, 13U, label);
+    if(uid != NULL) OLED_DrawText(0U, 23U, uid);
+    OLED_DrawHorizontalLine(32U);
+    OLED_DrawText(0U, 34U, "2: PREVIOUS");
+    OLED_DrawText(0U, 43U, "8: NEXT");
+    OLED_DrawText(0U, 52U, "B: BACK");
     (void)OLED_Refresh();
 }
 

@@ -475,8 +475,7 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
                 OLED_ShowActionScreen("ACCESS GRANTED",
                                       "DOOR OPEN",
                                       "LOCKS IN 5 SECONDS",
-                                      "A: ADMIN PIN",
-                                      NULL, NULL, NULL);
+                                      "A: ADMIN PIN", NULL, NULL, NULL);
             }
         }
         else if(oled_ready != 0U)
@@ -484,8 +483,7 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
             OLED_ShowActionScreen("CARD AUTHORIZED",
                                   "SERVO PWM ERROR",
                                   "CHECK PA7 / TIM3",
-                                  "A: ADMIN PIN",
-                                  NULL, NULL, NULL);
+                                  "A: ADMIN PIN", NULL, NULL, NULL);
         }
     }
     else if(oled_ready != 0U)
@@ -493,8 +491,7 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
         OLED_ShowActionScreen("ACCESS DENIED",
                               "CARD NOT REGISTERED",
                               "ASK ADMIN",
-                              "A: ADMIN PIN",
-                              NULL, NULL, NULL);
+                              "A: ADMIN PIN", NULL, NULL, NULL);
     }
 }
 
@@ -557,9 +554,10 @@ static void UI_HandlePinKey(char key)
                 OLED_ShowActionScreen("ADMIN PIN OK",
                                       "SERVO PWM ERROR",
                                       "MENU STILL ACTIVE",
-                                      "2/8: MOVE",
+                                      "2: UP",
+                                      "8: DOWN",
                                       "D: SELECT",
-                                      "B: BACK", NULL);
+                                      "B: BACK");
             }
             return;
         }
@@ -568,8 +566,7 @@ static void UI_HandlePinKey(char key)
         OLED_ShowActionScreen("PIN INCORRECT",
                               "ACCESS DENIED",
                               "TRY AGAIN",
-                              "A: RETRY PIN",
-                              NULL, NULL, NULL);
+                              "A: RETRY PIN", NULL, NULL, NULL);
         return;
     }
     UI_ShowPin();
@@ -637,8 +634,7 @@ static void UI_HandleSetupKey(char key)
             OLED_ShowActionScreen("SETUP SAVED",
                                   "ADMIN READY",
                                   "TAP CARD TO OPEN",
-                                  "A: ADMIN PIN",
-                                  NULL, NULL, NULL);
+                                  "A: ADMIN PIN", NULL, NULL, NULL);
         }
         else
         {
@@ -647,8 +643,7 @@ static void UI_HandleSetupKey(char key)
             OLED_ShowActionScreen("FLASH SAVE ERROR",
                                   "SETUP NOT SAVED",
                                   "CHECK FLASH",
-                                  "B: BACK",
-                                  NULL, NULL, NULL);
+                                  "B: BACK", NULL, NULL, NULL);
         }
         return;
     }
