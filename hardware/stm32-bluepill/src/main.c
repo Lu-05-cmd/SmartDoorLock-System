@@ -612,7 +612,7 @@ static void UI_HandlePinKey(char key)
             if(Servo_Open() != 0U)
             {
                 current_screen = UI_HOME;
-                OLED_ShowActionScreen("MO KHOA", NULL, NULL);
+                OLED_ShowCenteredMessage("DA MO KHOA");
             }
             else
             {

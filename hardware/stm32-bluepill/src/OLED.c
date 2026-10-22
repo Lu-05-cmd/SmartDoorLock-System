@@ -278,6 +278,16 @@ void OLED_ShowActionScreen(const char *title, const char *content1,
     (void)OLED_Refresh();
 }
 
+void OLED_ShowCenteredMessage(const char *message)
+{
+    OLED_Clear();
+    if(message != NULL)
+    {
+        OLED_DrawCenteredText(28U, message);
+    }
+    (void)OLED_Refresh();
+}
+
 void OLED_ShowSystemMenu(uint8_t selected)
 {
     static const char *const menu_items[] = {
