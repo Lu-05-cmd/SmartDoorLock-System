@@ -166,6 +166,14 @@ static void OLED_DrawText(uint8_t x, uint8_t y, const char *text)
     }
 }
 
+static void OLED_DrawCenteredText(uint8_t y, const char *text)
+{
+    size_t width = strlen(text) * 6U;
+    uint8_t x = width < OLED_WIDTH ?
+                (uint8_t)((OLED_WIDTH - width) / 2U) : 0U;
+    OLED_DrawText(x, y, text);
+}
+
 static uint8_t OLED_Refresh(void)
 {
     for(uint8_t page = 0U; page < OLED_PAGES; page++)
@@ -323,7 +331,13 @@ void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered)
     {
         pin_line[5U + i] = '*';
     }
-    OLED_ShowActionScreen(title, "ENTER 6 DIGIT PIN", pin_line);
+    OLED_Clear();
+    if(title != NULL)
+    {
+        OLED_DrawCenteredText(18U, title);
+    }
+    OLED_DrawCenteredText(40U, pin_line);
+    (void)OLED_Refresh();
 }
 
 void OLED_ShowEnrollCard(void)

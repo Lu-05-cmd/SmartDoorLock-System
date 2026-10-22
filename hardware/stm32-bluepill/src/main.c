@@ -16,7 +16,7 @@
 #define UI_SLEEP_TICKS 3000U
 #define RFID_POLL_TICKS 5U
 #define CARD_RELEASE_POLLS 20U
-#define DOOR_OPEN_TICKS 500U
+#define DOOR_OPEN_TICKS 1000U
 #define KEY_DEBOUNCE_TICKS 2U
 #define SERVO_FRAME_US 20000U
 #define SERVO_MIN_PULSE_US 500U
@@ -323,7 +323,7 @@ static void UI_ShowHome(void)
 
 static void UI_ShowPin(void)
 {
-    OLED_ShowPinPrompt("PIN OPEN ADMIN MENU", pin_digits);
+    OLED_ShowPinPrompt("PIN", pin_digits);
 }
 
 static void UI_ShowSetupPin(void)
@@ -467,8 +467,8 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
             if(current_screen != UI_MENU && oled_ready != 0U)
             {
                 OLED_ShowActionScreen("ACCESS GRANTED",
-                                      "DOOR OPEN",
-                                      "LOCKS IN 5 SECONDS");
+                                      NULL,
+                                      NULL);
             }
         }
         else if(oled_ready != 0U)
@@ -536,16 +536,7 @@ static void UI_HandlePinKey(char key)
             pin_digits = 0U;
             current_screen = UI_MENU;
             menu_selection = 0U;
-            if(Servo_Open() != 0U)
-            {
-                UI_ShowMenu();
-            }
-            else
-            {
-                OLED_ShowActionScreen("ADMIN PIN OK",
-                                      "SERVO PWM ERROR",
-                                      "MENU STILL ACTIVE");
-            }
+            UI_ShowMenu();
             return;
         }
         current_screen = UI_HOME;
@@ -816,7 +807,7 @@ int main(void)
                     {
                         OLED_DisplayPower(1U);
                     }
-                    if(access_config.card_count != 0U)
+                    if(access_config.card_count != 0U && key == 'A')
                     {
                         current_screen = UI_PIN;
                         memset(pin_input, 0, sizeof(pin_input));
