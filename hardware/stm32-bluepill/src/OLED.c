@@ -95,20 +95,6 @@ static void OLED_Clear(void)
     memset(framebuffer, 0, sizeof(framebuffer));
 }
 
-static void OLED_DrawHorizontalLine(uint8_t y)
-{
-    if(y >= OLED_PAGES * 8U)
-    {
-        return;
-    }
-    uint16_t page_offset = (uint16_t)(y / 8U) * OLED_WIDTH;
-    uint8_t row_mask = (uint8_t)(1U << (y % 8U));
-    for(uint8_t x = 0U; x < OLED_WIDTH; x++)
-    {
-        framebuffer[page_offset + x] |= row_mask;
-    }
-}
-
 static const uint8_t *OLED_Glyph(char character)
 {
     static const uint8_t digits[10][5] = {
@@ -271,30 +257,16 @@ void OLED_ShowLines(const char *line1, const char *line2,
     if(line2 != NULL) OLED_DrawText(0U, 16U, line2);
     if(line3 != NULL) OLED_DrawText(0U, 32U, line3);
     if(line4 != NULL) OLED_DrawText(0U, 48U, line4);
-    OLED_DrawHorizontalLine(9U);
-    OLED_DrawHorizontalLine(25U);
-    OLED_DrawHorizontalLine(43U);
     (void)OLED_Refresh();
 }
 
 void OLED_ShowActionScreen(const char *title, const char *content1,
-                           const char *content2, const char *action1,
-                           const char *action2, const char *action3,
-                           const char *action4)
+                           const char *content2)
 {
     OLED_Clear();
-    if(title != NULL) OLED_DrawText(0U, 1U, title);
-    OLED_DrawHorizontalLine(10U);
-    if(content1 != NULL) OLED_DrawText(0U, 12U, content1);
-    if(content2 != NULL) OLED_DrawText(0U, 20U, content2);
-    OLED_DrawHorizontalLine(28U);
-    if(action1 != NULL) OLED_DrawText(0U, 30U, action1);
-    OLED_DrawHorizontalLine(37U);
-    if(action2 != NULL) OLED_DrawText(0U, 38U, action2);
-    OLED_DrawHorizontalLine(45U);
-    if(action3 != NULL) OLED_DrawText(0U, 46U, action3);
-    OLED_DrawHorizontalLine(53U);
-    if(action4 != NULL) OLED_DrawText(0U, 54U, action4);
+    if(title != NULL) OLED_DrawText(0U, 2U, title);
+    if(content1 != NULL) OLED_DrawText(0U, 22U, content1);
+    if(content2 != NULL) OLED_DrawText(0U, 40U, content2);
     (void)OLED_Refresh();
 }
 
@@ -308,40 +280,19 @@ void OLED_ShowSystemMenu(uint8_t selected)
     };
     const uint8_t item_count =
         (uint8_t)(sizeof(menu_items) / sizeof(menu_items[0]));
-    const uint8_t visible_items = 2U;
-    uint8_t first_item = 0U;
-
     if(selected >= item_count)
     {
         selected = 0U;
     }
-    if(selected >= visible_items)
-    {
-        first_item = (uint8_t)(selected - visible_items + 1U);
-    }
 
     OLED_Clear();
-    OLED_DrawText(0U, 0U, "PIN OK ADMIN MENU");
-    OLED_DrawHorizontalLine(9U);
-    for(uint8_t row = 0U; row < visible_items; row++)
+    OLED_DrawText(0U, 1U, "ADMIN MENU");
+    for(uint8_t row = 0U; row < item_count; row++)
     {
-        uint8_t item = (uint8_t)(first_item + row);
-        if(item >= item_count)
-        {
-            break;
-        }
-        uint8_t y = (uint8_t)(12U + row * 9U);
-        OLED_DrawText(0U, y, item == selected ? "> " : "  ");
-        OLED_DrawText(12U, y, menu_items[item]);
+        uint8_t y = (uint8_t)(14U + row * 11U);
+        OLED_DrawText(0U, y, row == selected ? "> " : "  ");
+        OLED_DrawText(12U, y, menu_items[row]);
     }
-    OLED_DrawHorizontalLine(29U);
-    OLED_DrawText(0U, 31U, "2: UP");
-    OLED_DrawHorizontalLine(38U);
-    OLED_DrawText(0U, 39U, "8: DOWN");
-    OLED_DrawHorizontalLine(46U);
-    OLED_DrawText(0U, 47U, "D: SELECT");
-    OLED_DrawHorizontalLine(54U);
-    OLED_DrawText(0U, 55U, "B: BACK");
     (void)OLED_Refresh();
 }
 
@@ -358,8 +309,7 @@ void OLED_ShowPinEntry(uint8_t digits_entered)
         pin_line[9U + i] = '*';
     }
     OLED_ShowActionScreen("KEYPAD VERIFY", "ENTER PIN TO UNLOCK",
-                          pin_line, "A: DELETE", "D: OK",
-                          "B: BACK", NULL);
+                          pin_line);
 }
 
 void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered)
@@ -373,30 +323,21 @@ void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered)
     {
         pin_line[5U + i] = '*';
     }
-    OLED_ShowActionScreen(title, "ENTER 6 DIGIT PIN", pin_line,
-                          "A: DELETE", "D: OK", "B: BACK", NULL);
+    OLED_ShowActionScreen(title, "ENTER 6 DIGIT PIN", pin_line);
 }
 
 void OLED_ShowEnrollCard(void)
 {
     OLED_ShowActionScreen("ADD RFID CARD", "SCAN NEW CARD",
-                          "MAX 10 CARDS", "B: BACK",
-                          NULL, NULL, NULL);
+                          "MAX 10 CARDS");
 }
 
 void OLED_ShowRfidCard(const char *label, const char *uid)
 {
     OLED_Clear();
     OLED_DrawText(0U, 1U, "RFID CARD LIST");
-    OLED_DrawHorizontalLine(10U);
-    if(label != NULL) OLED_DrawText(0U, 13U, label);
-    if(uid != NULL) OLED_DrawText(0U, 23U, uid);
-    OLED_DrawHorizontalLine(32U);
-    OLED_DrawText(0U, 34U, "2: PREVIOUS");
-    OLED_DrawHorizontalLine(42U);
-    OLED_DrawText(0U, 43U, "8: NEXT");
-    OLED_DrawHorizontalLine(51U);
-    OLED_DrawText(0U, 52U, "B: BACK");
+    if(label != NULL) OLED_DrawText(0U, 22U, label);
+    if(uid != NULL) OLED_DrawText(0U, 40U, uid);
     (void)OLED_Refresh();
 }
 
@@ -404,24 +345,21 @@ void OLED_ShowRfidList(const char *last_uid)
 {
     OLED_ShowActionScreen("RFID CARD LIST",
                           "MAX 10 CARDS",
-                          last_uid != NULL ? last_uid : "NO CARD SCANNED",
-                          "D: RESCAN", "B: BACK", NULL, NULL);
+                          last_uid != NULL ? last_uid : "NO CARD SCANNED");
 }
 
 void OLED_ShowSecurityAlert(void)
 {
     OLED_ShowActionScreen("SECURITY ALERT",
                           "ADMIN REQUIRED",
-                          "PIN NOT CONFIGURED",
-                          "B: BACK", NULL, NULL, NULL);
+                          "PIN NOT CONFIGURED");
 }
 
 void OLED_ShowUnavailable(const char *feature)
 {
     OLED_ShowActionScreen(feature,
                           "NOT AVAILABLE",
-                          "NO CAMERA ON STM32",
-                          "B: BACK", NULL, NULL, NULL);
+                          "NO CAMERA ON STM32");
 }
 
 void OLED_ShowUID(const uint8_t *uid, uint8_t uid_length)

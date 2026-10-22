@@ -9,9 +9,7 @@ void OLED_ShowMessage(const char *message);
 void OLED_ShowLines(const char *line1, const char *line2,
                     const char *line3, const char *line4);
 void OLED_ShowActionScreen(const char *title, const char *content1,
-                           const char *content2, const char *action1,
-                           const char *action2, const char *action3,
-                           const char *action4);
+                           const char *content2);
 void OLED_ShowSystemMenu(uint8_t selected);
 void OLED_ShowPinEntry(uint8_t digits_entered);
 void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered);
