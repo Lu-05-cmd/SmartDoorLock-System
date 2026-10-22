@@ -55,6 +55,7 @@ typedef enum
 {
     UI_HOME,
     UI_PIN,
+    UI_ADMIN_PIN,
     UI_SETUP_PIN,
     UI_CONFIRM_PIN,
     UI_SETUP_DOOR_PIN,
@@ -371,17 +372,22 @@ static void UI_ShowHome(void)
     if(access_config.magic != CONFIG_MAGIC)
     {
         current_screen = UI_SETUP_PIN;
-        OLED_ShowPinPrompt("TAO PIN ADMIN", pin_digits);
+        OLED_ShowPinPrompt("TAO PIN ADMIN", pin_digits, 0U);
     }
     else
     {
-        OLED_ShowPinPrompt("NHAP PIN", 0U);
+        OLED_ShowPinPrompt("NHAP PIN", 0U, 1U);
     }
 }
 
 static void UI_ShowPin(void)
 {
-    OLED_ShowPinPrompt("NHAP PIN", pin_digits);
+    OLED_ShowPinPrompt("NHAP PIN", pin_digits, 0U);
+}
+
+static void UI_ShowAdminPin(void)
+{
+    OLED_ShowPinPrompt("PIN ADMIN", pin_digits, 0U);
 }
 
 static void UI_ShowSetupPin(void)
@@ -397,7 +403,7 @@ static void UI_ShowSetupPin(void)
         title = initial_setup != 0U ? "TAO PIN ADMIN" :
                 "DOI PIN ADMIN";
     }
-    OLED_ShowPinPrompt(title, pin_digits);
+    OLED_ShowPinPrompt(title, pin_digits, 0U);
 }
 
 static void UI_ShowMenu(void)
@@ -605,7 +611,8 @@ static void UI_HandlePinKey(char key)
             UI_ShowMenu();
             return;
         }
-        if(access_config.door_pin_configured != 0U &&
+        if(current_screen == UI_PIN &&
+           access_config.door_pin_configured != 0U &&
            entered_pin_hash == access_config.door_pin_hash)
         {
             pin_digits = 0U;
@@ -665,7 +672,7 @@ static void UI_HandleSetupKey(char key)
                              UI_CONFIRM_DOOR_PIN : UI_CONFIRM_PIN;
             OLED_ShowPinPrompt(setting_door_pin ?
                                "XAC NHAN PIN MO CUA" :
-                               "XAC NHAN PIN ADMIN", pin_digits);
+                               "XAC NHAN PIN ADMIN", pin_digits, 0U);
             return;
         }
 
@@ -762,7 +769,7 @@ static void UI_HandleSetupKey(char key)
     {
         OLED_ShowPinPrompt(setting_door_pin ?
                            "XAC NHAN PIN MO CUA" :
-                           "XAC NHAN PIN ADMIN", pin_digits);
+                           "XAC NHAN PIN ADMIN", pin_digits, 0U);
     }
 }
 
@@ -776,6 +783,14 @@ static void UI_HandleKey(char key)
 
     if(current_screen == UI_HOME)
     {
+        if(access_config.magic == CONFIG_MAGIC && key == 'C')
+        {
+            current_screen = UI_ADMIN_PIN;
+            memset(pin_input, 0, sizeof(pin_input));
+            pin_digits = 0U;
+            UI_ShowAdminPin();
+            return;
+        }
         if(access_config.magic == CONFIG_MAGIC &&
            (key == 'A' || (key >= '0' && key <= '9')))
         {
@@ -795,6 +810,11 @@ static void UI_HandleKey(char key)
     }
 
     if(current_screen == UI_PIN)
+    {
+        UI_HandlePinKey(key);
+        return;
+    }
+    if(current_screen == UI_ADMIN_PIN)
     {
         UI_HandlePinKey(key);
         return;
@@ -954,7 +974,8 @@ int main(void)
                         OLED_DisplayPower(1U);
                     }
                     if(access_config.magic == CONFIG_MAGIC &&
-                       (key == 'A' || (key >= '0' && key <= '9')))
+                       (key == 'C' || key == 'A' ||
+                        (key >= '0' && key <= '9')))
                     {
                         current_screen = UI_HOME;
                         UI_HandleKey(key);

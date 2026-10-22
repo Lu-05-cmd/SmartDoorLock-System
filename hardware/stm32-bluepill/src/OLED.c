@@ -317,10 +317,11 @@ void OLED_ShowSystemMenu(uint8_t selected)
 
 void OLED_ShowPinEntry(uint8_t digits_entered)
 {
-    OLED_ShowPinPrompt("NHAP PIN", digits_entered);
+    OLED_ShowPinPrompt("NHAP PIN", digits_entered, 0U);
 }
 
-void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered)
+void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered,
+                        uint8_t show_admin_menu_hint)
 {
     char pin_line[] = "MA PIN: ------";
     if(digits_entered > 6U)
@@ -338,7 +339,10 @@ void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered)
     }
     OLED_DrawCenteredText(24U, pin_line);
     OLED_DrawCenteredText(40U, "D: XAC NHAN");
-    OLED_DrawCenteredText(52U, "PIN ADMIN: MENU");
+    if(show_admin_menu_hint != 0U)
+    {
+        OLED_DrawCenteredText(52U, "C: MENU ADMIN");
+    }
     (void)OLED_Refresh();
 }
 

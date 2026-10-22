@@ -13,7 +13,8 @@ void OLED_ShowActionScreen(const char *title, const char *content1,
 void OLED_ShowCenteredMessage(const char *message);
 void OLED_ShowSystemMenu(uint8_t selected);
 void OLED_ShowPinEntry(uint8_t digits_entered);
-void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered);
+void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered,
+                        uint8_t show_admin_menu_hint);
 void OLED_ShowEnrollCard(void);
 void OLED_ShowRfidCard(const char *label, const char *uid);
 void OLED_ShowRfidList(const char *last_uid);
