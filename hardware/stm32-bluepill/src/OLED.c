@@ -337,7 +337,8 @@ void OLED_ShowPinPrompt(const char *title, uint8_t digits_entered)
         OLED_DrawCenteredText(3U, title);
     }
     OLED_DrawCenteredText(24U, pin_line);
-    OLED_DrawCenteredText(47U, "D: XAC NHAN");
+    OLED_DrawCenteredText(40U, "D: XAC NHAN");
+    OLED_DrawCenteredText(52U, "PIN ADMIN: MENU");
     (void)OLED_Refresh();
 }
 
