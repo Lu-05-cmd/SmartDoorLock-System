@@ -83,8 +83,6 @@ static uint8_t pin_digits;
 static uint8_t pin_input[PIN_LENGTH];
 static uint8_t pending_pin[PIN_LENGTH];
 static uint32_t pending_admin_pin_hash;
-static uint8_t pending_admin_uid[10];
-static uint8_t pending_admin_uid_length;
 static uint8_t initial_setup;
 static uint8_t card_list_selection;
 static uint8_t card_latched;
@@ -154,7 +152,6 @@ static uint32_t LegacyConfigChecksum(const LegacyAccessConfig_t *config)
 static uint8_t ConfigIsValid(const AccessConfig_t *config)
 {
     if(config->magic != CONFIG_MAGIC ||
-       config->card_count == 0U ||
        config->card_count > MAX_CARDS ||
        config->door_pin_configured > 1U ||
        config->checksum != ConfigChecksum(config))
@@ -371,11 +368,10 @@ static int8_t FindCard(const uint8_t *uid, uint8_t uid_length)
 
 static void UI_ShowHome(void)
 {
-    if(access_config.card_count == 0U)
+    if(access_config.magic != CONFIG_MAGIC)
     {
-        OLED_ShowActionScreen("DOOR LOCK SETUP",
-                              "SCAN FIRST ADMIN",
-                              "CARD TO CONTINUE");
+        current_screen = UI_SETUP_PIN;
+        OLED_ShowPinPrompt("SET ADMIN PIN", pin_digits);
     }
     else
     {
@@ -470,21 +466,6 @@ static void ProcessCard(const uint8_t *uid, uint8_t uid_length)
     {
         OLED_DisplayPower(1U);
         display_awake = 1U;
-    }
-
-    if(access_config.card_count == 0U)
-    {
-        memcpy(pending_admin_uid, uid, uid_length);
-        pending_admin_uid_length = uid_length;
-        initial_setup = 1U;
-        memset(pin_input, 0, sizeof(pin_input));
-        pin_digits = 0U;
-        current_screen = UI_SETUP_PIN;
-        if(oled_ready != 0U)
-        {
-            UI_ShowSetupPin();
-        }
-        return;
     }
 
     if(current_screen == UI_ADD_CARD)
@@ -599,6 +580,15 @@ static void UI_HandlePinKey(char key)
     }
     else if(key == 'B')
     {
+        if(initial_setup != 0U)
+        {
+            current_screen = UI_SETUP_PIN;
+            memset(pin_input, 0, sizeof(pin_input));
+            memset(pending_pin, 0, sizeof(pending_pin));
+            pin_digits = 0U;
+            UI_ShowSetupPin();
+            return;
+        }
         current_screen = UI_HOME;
         pin_digits = 0U;
         UI_ShowHome();
@@ -693,7 +683,9 @@ static void UI_HandleSetupKey(char key)
 
         uint32_t new_pin_hash = HashPin(pending_pin);
         uint32_t other_pin_hash = setting_door_pin ?
-                                  access_config.admin_pin_hash :
+                                  (initial_setup != 0U ?
+                                   pending_admin_pin_hash :
+                                   access_config.admin_pin_hash) :
                                   access_config.door_pin_hash;
         if((setting_door_pin || access_config.door_pin_configured != 0U) &&
            new_pin_hash == other_pin_hash)
@@ -722,12 +714,10 @@ static void UI_HandleSetupKey(char key)
         if(initial_setup != 0U)
         {
             memset(&updated, 0xFF, sizeof(updated));
+            updated.card_count = 0U;
+            updated.door_pin_configured = 0U;
             updated.reserved[0] = 0U;
             updated.reserved[1] = 0U;
-            updated.card_count = 1U;
-            updated.cards[0].length = pending_admin_uid_length;
-            memcpy(updated.cards[0].uid, pending_admin_uid,
-                   pending_admin_uid_length);
             updated.admin_pin_hash = pending_admin_pin_hash;
         }
         if(setting_door_pin)
@@ -786,7 +776,7 @@ static void UI_HandleKey(char key)
 
     if(current_screen == UI_HOME)
     {
-        if(access_config.card_count != 0U &&
+        if(access_config.magic == CONFIG_MAGIC &&
            (key == 'A' || (key >= '0' && key <= '9')))
         {
             current_screen = UI_PIN;
@@ -902,6 +892,8 @@ static void UI_HandleKey(char key)
 
 int main(void)
 {
+    uint8_t config_loaded;
+
     Config_RCC();
     SystemCoreClockUpdate();
     delay_init();
@@ -910,31 +902,23 @@ int main(void)
     servo_ready = Servo_Init();
     (void)SysTick_Config(SystemCoreClock / 100U);
 
-    (void)ConfigLoad();
+    config_loaded = ConfigLoad();
+    if(config_loaded == 0U)
+    {
+        initial_setup = 1U;
+        current_screen = UI_SETUP_PIN;
+    }
     oled_ready = OLED_Init();
     rfid_ready = RC522_Init();
     if(oled_ready != 0U)
     {
-        if(rfid_ready != 0U && servo_ready != 0U)
+        if(config_loaded == 0U)
         {
-            UI_ShowHome();
-        }
-        else if(rfid_ready == 0U)
-        {
-            static const char hex[] = "0123456789ABCDEF";
-            uint8_t version = RC522_GetVersion();
-            char version_line[] = "VERSION: 00";
-            version_line[9] = hex[version >> 4U];
-            version_line[10] = hex[version & 0x0FU];
-            OLED_ShowLines("RC522 INIT ERROR", version_line,
-                           "CHECK SPI/3V3/GND", "CS PA15 RST PA4");
+            UI_ShowSetupPin();
         }
         else
         {
-            OLED_ShowLines("SERVO PWM ERROR",
-                           "CHECK PA7 / TIM3",
-                           "CHECK TIMER CLOCK",
-                           "RFID STILL ACTIVE");
+            UI_ShowHome();
         }
     }
 
@@ -969,7 +953,7 @@ int main(void)
                     {
                         OLED_DisplayPower(1U);
                     }
-                    if(access_config.card_count != 0U &&
+                    if(access_config.magic == CONFIG_MAGIC &&
                        (key == 'A' || (key >= '0' && key <= '9')))
                     {
                         current_screen = UI_HOME;
