@@ -4,21 +4,23 @@ Dự án prototype khóa cửa thông minh gồm firmware nhận diện khuôn m
 
 ## Tổng quan
 
-- **ESP32 DevKit + OV2640:** nhận diện khuôn mặt và điều khiển relay trên thiết bị; gửi heartbeat và metadata sự kiện tới local API.
+- **ESP32 DevKit + OV5640:** firmware đã có luồng nhận diện/đăng ký khuôn mặt, điều khiển relay và gửi heartbeat/sự kiện tới Local API. Chưa xác minh hoạt động trên camera, board và khóa thật.
 - **Ứng dụng Android/WebView:** dashboard demo, quản lý khuôn mặt, sự kiện và kết nối thiết bị.
 - **Local API:** Python service dùng SQLite để lưu trạng thái thiết bị, sự kiện và metadata khuôn mặt.
-- **STM32 Blue Pill:** firmware mẫu nháy LED độc lập, chưa tích hợp với luồng ESP32-CAM.
+- **STM32 Blue Pill:** firmware độc lập xác thực PIN/RFID, hiển thị trên OLED và điều khiển servo; đã build thành công, chưa tích hợp với ESP32/API hoặc kiểm chứng trên mạch thật.
 
 Ảnh khuôn mặt và mẫu sinh trắc học được xử lý/lưu trên thiết bị nhận diện; API chỉ nhận metadata, không nhận ảnh hay mẫu sinh trắc học.
 
 ```text
-ESP32 DevKit + OV2640 ──> Nhận diện khuôn mặt ──> Relay khóa cửa
+ESP32 DevKit + OV5640 ──> Nhận diện khuôn mặt ──> Relay khóa cửa
      │
      └── HTTP heartbeat + metadata sự kiện ──> Local API (Python + SQLite)
                                                   └── Android/WebView app
 
-STM32 Blue Pill ──> Firmware mẫu độc lập
+STM32 Blue Pill ──> Keypad/RFID ──> Xác thực cục bộ ──> OLED/servo
 ```
+
+Nhánh STM32 lưu cấu hình PIN và UID trong flash MCU. Reed Switch chưa được hỗ trợ trong firmware hiện tại.
 
 ## Tài liệu
 
@@ -33,10 +35,11 @@ software/
   app/            Android app và giao diện WebView
   local-api/      Python API, SQLite bridge và tests
 hardware/
-  esp32-camera/   Firmware ESP32 DevKit + OV2640
-  stm32-bluepill/ Firmware mẫu STM32F103C8T6
+  esp32-camera/   Firmware ESP32 DevKit + OV5640
+    esp-who/      Thư viện phụ thuộc từ nhánh idfv4.4
+  stm32-bluepill/ Firmware STM32F103C8T6 (PIN/RFID/OLED/servo)
   assets/         Sơ đồ mạch và kiến trúc
-  Makefile        Lệnh build/nạp/debug firmware
+  Makefile        Lệnh build/nạp/debug STM32
 ```
 
 ## Bắt đầu nhanh
@@ -65,15 +68,23 @@ API mặc định lắng nghe trên `0.0.0.0:8766`. Cấu hình đầy đủ và
 
 ### Build firmware
 
-Từ thư mục gốc, có thể dùng GNU Make:
+Khởi tạo thư viện phụ thuộc ESP-WHO và build firmware ESP32 trực tiếp bằng PlatformIO:
+
+```powershell
+git submodule update --init --recursive
+pio run -d hardware\esp32-camera
+```
+
+Trước khi build ESP32, tạo `hardware\esp32-camera\include\secrets.h` từ file `secrets.h.example` và điền Wi-Fi/API credentials. Không commit file secrets.
+
+Makefile trong `hardware/` hiện chỉ cung cấp các lệnh STM32. Build từ thư mục gốc:
 
 ```powershell
 make -C hardware help
-make -C hardware esp32-build
 make -C hardware stm32-build
 ```
 
-Trước khi build firmware camera, tạo và cấu hình file secrets cục bộ. Xem hướng dẫn phần cứng để biết công cụ, board tương thích, nạp firmware và các lưu ý an toàn.
+Build STM32 đã thành công; kết quả này chỉ xác nhận biên dịch, chưa xác minh hoạt động của board và ngoại vi thật. Firmware STM32 dùng PIN/RFID, OLED và servo, độc lập với nhánh ESP32, chưa tích hợp API/app. Xem hướng dẫn phần cứng để biết quy trình nạp/debug và các lưu ý an toàn.
 
 ## Giới hạn và an toàn
 
