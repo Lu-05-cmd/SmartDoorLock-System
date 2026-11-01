@@ -5,7 +5,6 @@
 #include "stm32f103xb.h"
 #include "../include/header/keypad.h"
 #include "../include/header/delay.h"
-#include "../include/header/ReedSwtich.h"
 #include "../include/header/RC522.h"
 #include "../include/header/OLED.h"
 
@@ -1077,7 +1076,6 @@ void Config_RCC(void)
 void Config_GPIO(void)
 {
     Keypad_ConfigGPIO();
-    ReedSwitch_ConfigGPIO();
 }
 
 void Config_EXTI(void)
