@@ -1,0 +1,4 @@
+[submodule "hardware/esp32-camera/esp-who"]
+	path = hardware/esp32-camera/esp-who
+	url = https://github.com/espressif/esp-who.git
+	branch = idfv4.4
